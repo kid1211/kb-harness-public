@@ -5,6 +5,7 @@
   scan.py names <dir> <deny-list>    deny terms, in file text and in paths
   scan.py list  <dir> <deny-list>    a copy of the deny list file in <dir>
   scan.py sample <kind>              a planted hit of a PII kind, made at run time
+  scan.py owners <dir> <listed>      each plan, model and test a listed skill needs, off <listed>
 
 Each hit prints as <file>:<line> <rule>, never the matched text. A path hit has
 the line "path". Exit 0 clean, 1 on a hit, 2 when the deny list is missing or empty.
@@ -160,10 +161,46 @@ def find_list(root, deny_path):
     return hits
 
 
+def owners(root, listed_path):
+    """R41: each plan level that builds a listed skill or library must be listed whole, with
+    the tests its Builds: line or 1-design.md names and the models its models import."""
+    listed = set(read_list(listed_path))
+    files = set()
+    for d, _, names in os.walk(root):
+        files.update(os.path.relpath(os.path.join(d, n), root) for n in names)
+    under = lambda p: {f for f in files if f == p or f.startswith(p.rstrip("/") + "/")}
+    parts = {"/".join(f.split("/")[:3]) + "/" for f in listed
+             if re.match(r"\.claude/(skills|lib)/[^/]+/", f)}
+    missing = set()
+    for idx in sorted(f for f in files if f.startswith("plans/") and f.endswith("/0-index.md")):
+        level = idx[: -len("0-index.md")]
+        text = open(os.path.join(root, idx), encoding="utf-8").read()
+        builds = " ".join(re.findall(r"^Builds:(.*)$", text, re.M))
+        paths = re.findall(r"`([^`\s]+)`", builds)
+        if not any(p.startswith(s) or s.startswith(p.rstrip("/") + "/") for p in paths for s in parts):
+            continue
+        need = under(level)
+        design = os.path.join(root, level, "1-design.md")
+        named = paths + (re.findall(r"`(?:bash |sh |python3 (?:-I )?)?([^`\s]+)", open(design, encoding="utf-8").read())
+                         if os.path.exists(design) else [])
+        for t in named:
+            if t.startswith("tests/"):
+                need |= under(t)
+        for q in [f for f in need if f.endswith(".qnt")]:
+            for imp in re.findall(r'from\s+"([^"]+)"', open(os.path.join(root, q), encoding="utf-8").read()):
+                need |= under(os.path.normpath(os.path.join(os.path.dirname(q), imp + ".qnt")))
+        missing |= need - listed
+    for m in sorted(missing):
+        print(f"{m} not_listed: needed by a listed skill or library (R41)")
+    return missing
+
+
 def main(argv):
     if len(argv) == 3 and argv[1] == "sample":
         print(sample(argv[2]))
         return 0
+    if len(argv) == 4 and argv[1] == "owners":
+        return 1 if owners(argv[2], argv[3]) else 0
     if len(argv) != 4 or argv[1] not in ("pii", "names", "list"):
         print(__doc__, file=sys.stderr)
         return 2

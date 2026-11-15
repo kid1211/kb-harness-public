@@ -1,0 +1,16 @@
+{
+  "name": "knowledge-base-models",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pins the Quint toolchain for the .qnt models in this repo. This is not a build — nothing here compiles, bundles, or publishes. See CLAUDE.md.",
+  "devDependencies": {
+    "@informalsystems/quint": "0.32.0",
+    "@playwright/test": "1.64.0",
+    "diff": "9.0.0",
+    "marked": "12.0.2"
+  },
+  "scripts": {
+    "check": "scripts/check-models.sh",
+    "quint": "quint"
+  }
+}
