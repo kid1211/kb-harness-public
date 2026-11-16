@@ -1,0 +1,41 @@
+{
+  "name": "draw-graph-preview",
+  "displayName": "draw-graph preview",
+  "description": "Draws ```graph blocks in VS Code's Markdown preview with the harness's draw-graph library, and opens a Markdown diff as Markdown Diff: rendered, with the changes marked.",
+  "publisher": "local",
+  "version": "0.0.4",
+  "license": "UNLICENSED",
+  "engines": { "vscode": "^1.80.0" },
+  "categories": ["Other"],
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "markdown.markdownItPlugins": true,
+    "markdown.previewScripts": ["./preview.bundle.js"],
+    "markdown.previewStyles": ["./palette.css", "./preview.css", "./emoji-bullets.css", "./plan-preview.css", "./id-cards.css"],
+    "configuration": {
+      "title": "Plan preview",
+      "properties": {
+        "planPreview.statesOnly": {
+          "type": "boolean", "default": false,
+          "description": "In the Markdown preview of a 1-design.md, hide the Guard, Invariants and Effect of each state. Two links, Effect and Invariants, show them on hover."
+        }
+      }
+    },
+    "commands": [
+      { "command": "markdownDiff.open", "title": "Markdown Diff: Open", "icon": "$(diff)" },
+      { "command": "codeReference.copy", "title": "TalkToClaude: Copy a Reference to the Selected Lines" }
+    ],
+    "keybindings": [
+      { "command": "codeReference.copy", "key": "ctrl+shift+c", "mac": "cmd+shift+c" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "markdownDiff.open", "group": "navigation", "when": "resourceExtname == .md" }
+      ],
+      "scm/resourceState/context": [
+        { "command": "markdownDiff.open", "when": "resourceExtname == .md" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+/* Markdown Diff (diff-view.js). The page loads VS Code's own Markdown preview styles, then
+   palette.css and preview.css as the preview does, then markdown-diff.css. This adds the
+   strip on the right and the colours of changed words in a dark theme. */
+body { padding-right: 40px; }
+body.vscode-dark { --md-ins-fg: #d2f8d9; --md-del-fg: #ffd7d3; }
+.md-same { opacity: .7; }
+
+/* The strip at the right: one mark per change, at its place in the page, like the editor's overview ruler. */
+/* The theme's own colours, as in the diff editor's ruler. */
+#ruler { position: fixed; top: 0; right: 0; bottom: 0; width: 14px; cursor: pointer;
+  border-left: 1px solid var(--vscode-editorOverviewRuler-border, rgba(128, 128, 128, .3)); }
+html::-webkit-scrollbar { display: none; }
+#ruler .view { position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none;
+  background: var(--vscode-scrollbarSlider-background, rgba(121, 121, 121, .4)); }
+#ruler:hover .view { background: var(--vscode-scrollbarSlider-hoverBackground, rgba(100, 100, 100, .7)); }
+#ruler .mark { position: absolute; min-height: 3px; cursor: pointer; }
+#ruler .md-del { left: 0; right: 50%; background: var(--vscode-editorOverviewRuler-removedForeground, var(--vscode-diffEditor-removedTextBackground, #f85149)); }
+#ruler .md-ins { left: 50%; right: 0; background: var(--vscode-editorOverviewRuler-addedForeground, var(--vscode-diffEditor-insertedTextBackground, #2ea043)); }
+#ruler .md-chg { left: 0; right: 0; background: var(--vscode-editorOverviewRuler-modifiedForeground, #D2B48C); }
