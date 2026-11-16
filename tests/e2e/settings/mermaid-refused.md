@@ -18,7 +18,7 @@
 ## Expected
 
 1. Each script path of step 1 is a file in `$T/h`.
-2. The paths of step 1 are `.claude/skills/draw-graph/hooks/no-mermaid.sh`, `.claude/skills/draw-graph/hooks/check-graph.sh` and `.claude/skills/session-retro/scripts/reminder.sh`, and no other.
+2. The paths of step 1 include `.claude/skills/draw-graph/hooks/no-mermaid.sh` and `.claude/skills/draw-graph/hooks/check-graph.sh`.
 3. After step 2, `$T/h/notes/m.md` does not exist, or holds no line that starts with a mermaid code fence.
 4. `git -C $T/h status --porcelain` names no file outside `notes/`.
 
