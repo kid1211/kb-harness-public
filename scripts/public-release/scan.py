@@ -163,7 +163,8 @@ def find_list(root, deny_path):
 
 def owners(root, listed_path):
     """R41: each plan level that builds a listed skill or library must be listed whole, with
-    the tests its Builds: line or 1-design.md names and the models its models import."""
+    the tests its Builds: line or 1-design.md names and the models its models import. R53: and
+    each other skill or library of the harness that a listed one names by path."""
     listed = set(read_list(listed_path))
     files = set()
     for d, _, names in os.walk(root):
@@ -190,6 +191,14 @@ def owners(root, listed_path):
             for imp in re.findall(r'from\s+"([^"]+)"', open(os.path.join(root, q), encoding="utf-8").read()):
                 need |= under(os.path.normpath(os.path.join(os.path.dirname(q), imp + ".qnt")))
         missing |= need - listed
+    # R53: a listed skill or library that names a path into another part of the harness needs it listed.
+    for f in sorted(f for f in listed if any(f.startswith(s) for s in parts) and f in files):
+        try:
+            text = open(os.path.join(root, f), encoding="utf-8").read()
+        except (UnicodeDecodeError, OSError):
+            continue
+        for p in set(re.findall(r"\.claude/(?:skills|lib)/[A-Za-z0-9_.-]+/", text)) - parts:
+            missing |= under(p) - listed
     for m in sorted(missing):
         print(f"{m} not_listed: needed by a listed skill or library (R41)")
     return missing
