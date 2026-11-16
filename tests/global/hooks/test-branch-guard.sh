@@ -170,12 +170,17 @@ if [[ -n "$cmd" ]]; then
   (cd "$t/out" && printf '%s' "$json" | CLAUDE_PROJECT_DIR="$repo" sh -c "$cmd" >/dev/null 2>&1); code=$?
   [[ "$code" == 2 ]] && ok "the settings line falls back to the project folder" || bad "the fall back: exit $code"
 fi
-sec="$(sed -n '/^## Branches and worktrees: harness only/,/^## /p' "$repo/.claude/CLAUDE.md")"
-[[ "$sec" == *"only with a worktree"* ]] && ok ".claude/CLAUDE.md: a harness branch only with a worktree" \
-  || bad ".claude/CLAUDE.md lacks 'only with a worktree' in Branches and worktrees"
+# The public copy holds neither CLAUDE.md, so it skips these two.
+if [[ -f "$repo/.claude/CLAUDE.md" ]]; then
+  sec="$(sed -n '/^## Branches and worktrees: harness only/,/^## /p' "$repo/.claude/CLAUDE.md")"
+  [[ "$sec" == *"only with a worktree"* ]] && ok ".claude/CLAUDE.md: a harness branch only with a worktree" \
+    || bad ".claude/CLAUDE.md lacks 'only with a worktree' in Branches and worktrees"
+else echo "skip .claude/CLAUDE.md: not in this checkout"; fi
 
-grep -q '^bash tests/global/hooks/test-branch-guard.sh ' "$repo/CLAUDE.md" \
-  && ok "CLAUDE.md: the suite is in the Tests list" || bad "CLAUDE.md: the suite is not in the Tests list"
+if [[ -f "$repo/CLAUDE.md" ]]; then
+  grep -q '^bash tests/global/hooks/test-branch-guard.sh ' "$repo/CLAUDE.md" \
+    && ok "CLAUDE.md: the suite is in the Tests list" || bad "CLAUDE.md: the suite is not in the Tests list"
+else echo "skip CLAUDE.md: not in this checkout"; fi
 
 echo "branch-guard: $pass passed, $fail failed"
 (( fail == 0 ))
