@@ -11,6 +11,7 @@ Each hit prints as <file>:<line> <rule>, never the matched text. A path hit has
 the line "path". Exit 0 clean, 1 on a hit, 2 when the deny list is missing or empty.
 """
 import os
+import json
 import re
 import sys
 import unicodedata
@@ -204,9 +205,33 @@ def owners(root, listed_path):
     return missing
 
 
+def scripts_of(hook):
+    """The repo paths a hook command runs: each path after the "$(git rev-parse ...)" root."""
+    return set(re.findall(r'\)"/([\w./-]+)', hook.get("command", "")))
+
+
+def settings(src, listed_path):
+    """R54: the hooks of settings.json whose scripts all go public, as JSON. Empty if none."""
+    listed = set(read_list(listed_path))
+    data = json.load(open(src, encoding="utf-8"))
+    out = {}
+    for event, groups in data.get("hooks", {}).items():
+        kept = []
+        for g in groups:
+            hooks = [h for h in g.get("hooks", []) if scripts_of(h) and scripts_of(h) <= listed]
+            if hooks:
+                kept.append({**g, "hooks": hooks})
+        if kept:
+            out[event] = kept
+    return json.dumps({"hooks": out}, indent=2) + "\n" if out else ""
+
+
 def main(argv):
     if len(argv) == 3 and argv[1] == "sample":
         print(sample(argv[2]))
+        return 0
+    if len(argv) == 4 and argv[1] == "settings":
+        sys.stdout.write(settings(argv[2], argv[3]))
         return 0
     if len(argv) == 4 and argv[1] == "owners":
         return 1 if owners(argv[2], argv[3]) else 0
