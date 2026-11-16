@@ -1,0 +1,41 @@
+# Op skills: detailed requirements
+
+## Requirements
+
+- ✅ **R24. Session facts:** [implement] Each skill finds the facts it needs about the session it runs in. It does not ask the user for them. The session's directory is its current directory when the user runs the skill, so a session that entered a worktree is in that worktree.
+  - They need the session ID, the directory, and whether the session runs inside cmux.
+  - Whether the session runs inside cmux is always a yes or a no, never a missing fact.
+  - If a fact cannot be found, the skill opens nothing and says which fact is missing.
+  - The facts come from the environment and git, not from `/status`. See Open questions.
+  - Serves: F3
+- ✅ **R11. Fork in a new pane:** [implement] the user runs `op-fork-keep` or `op-fork-new-wt`. A fork of the current session opens in a new cmux split pane, and the fork holds the whole conversation of the session. The current session goes on as before.
+  - If the session does not run inside cmux, the skill opens nothing. It says why, and gives the user the fork command to run by hand.
+  - If a `cmux` or `claude` command fails, the skill closes any pane it opened. It says which command failed, and gives the user the fork command to run by hand.
+  - The fork command for the user holds the session ID and a `cd` to the session's directory, so a fork by hand also meets R7 or R23.
+  - The two skills are one fork with one difference: where the fork runs (R7 or R23). They share one script, `op-fork-keep/scripts/fork.sh`, and its checks. `op-fork-new-wt` runs it with `--new-wt`. No code is copied between them. Their `SKILL.md` text can repeat. *(the user, 2026-10-20)*
+  - Serves: F1
+- ✅ **R7. Fork in the same place:** [implement] the user runs `op-fork-keep`. The fork runs in the same directory as the session. If the session is in a linked worktree, the fork runs in that same worktree. `op-fork-keep` makes no new worktree and no new branch.
+  - The fork does not own that worktree: the session that made it holds its lock. So `worktree-end` in the fork cannot remove it, and asks for a typed `delete` instead ([`plans/worktree-end/`](../../worktree-end/0-index.md)).
+  - Serves: F1
+- ✅ **R23. Fork in a new worktree:** [implement] the user runs `op-fork-new-wt`. The fork starts in a new worktree, `.claude/worktrees/fork-<first 8 characters of the session ID>`, on the branch `worktree-fork-<…>`. The fork's session owns it, so `worktree-end` in the fork can remove it. *(the user, 2026-10-20)*
+  - The new worktree starts from `origin/main`, not from the session's branch. Its files are those of `main`, while the fork holds the whole conversation. Changes that are not on `main`, committed or not, do not come across.
+  - The fork command is `claude --resume <id> --fork-session -w <name>`. With no `worktree.baseRef` setting, `-w` starts from `origin/<default branch>` ([research Q2](research/fork-session.md#q2-does---resume-id---fork-session--w-name-start-the-fork-in-a-new-worktree), [Q3](research/fork-session.md#q3-which-commit-does-the-worktree-of--w-start-from)). From a linked worktree, the new worktree goes into the main checkout's `.claude/worktrees/`.
+  - If that name is in use, the skill adds `-2`, `-3` and so on.
+  - Why: a fork in the same worktree can never own it. On 2026-10-20 a fork made with `op-fork` could not close its work with `worktree-end`, and needed a forced `git worktree remove` after PR #54. [Research Q5](research/fork-session.md#q5-same-worktree-or-new-worktree-for-the-fork-of-a-session-in-a-worktree) compared the two options. The dropped [R3 in `alt-requirements.md`](alt-requirements.md) was the first form of this requirement. See also [`closed-q.md`](#open-questions).
+  - Serves: F1
+- 🚀 **R25. Each run checks itself:** [implement] The script ends by checking what it did, on that run. A run passes only when each check passes. A check prints nothing when it passes, so the one line of R14 is the only output of a run that passes.
+  - `op-fork-keep` and `op-fork-new-wt` share one script with two checks. A state check looks at what the run left behind and reports the state the run ended in: forked, not in cmux, a fact missing, or a command failed. A run leaves a new cmux pane, a new fork process, and the lists of worktrees and branches. An output check tests the output of that state.
+  - An output check confirms that each expected output is there: for `op-fork-keep`, a pane and a session. For `op-fork-new-wt`, also one new worktree and one new branch, both with the name of R23. It also confirms that no unexpected one is there: no extra pane, session, worktree or branch.
+  - The checks are written before the skill.
+  - If a check fails, fix the skill. Do not loosen the check. If the check is wrong, fix this plan first, then the check.
+  - Serves: F3
+- 🚀 **R20. In a worktree or not:** [implement] Each skill works the same way in a linked worktree and in the main checkout. The user runs them in both.
+  - A session can start in the main checkout and enter a worktree later. Its directory is then the worktree (R24), not the folder it started in.
+  - `op-fork-keep` and `op-fork-new-wt` do not trust the folder a new cmux pane starts in. It starts the fork with an explicit `cd` to the session's directory.
+  - The checks of R25 run the same way in both cases. The tests of each skill run it in a linked worktree, in the main checkout, and in a session that entered a worktree after it started.
+  - Serves: F3
+- 🚀 **R14. Small footprint:** [implement] Each skill adds as little as it can to Claude's context, because the user runs them many times in one session.
+  - The `SKILL.md` tells Claude only to run the skill's one script. All the steps are in the script.
+  - On success the script prints one short line. On a failure it prints what failed and the command to run by hand, and nothing more.
+  - Claude reads no other file and runs no other command for a run of the skill.
+  - Serves: F4
