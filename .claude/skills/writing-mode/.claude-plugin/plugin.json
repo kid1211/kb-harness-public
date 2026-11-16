@@ -1,0 +1,6 @@
+{
+  "name": "writing-mode",
+  "version": "0.1.0",
+  "description": "Two buttons above the prompt that set the writing-check mode for replies and docs: off, casual or pro",
+  "types": "./types/index.d.ts"
+}
