@@ -7,7 +7,7 @@
 ## Setup
 
 1. Make a temp folder `$T`.
-2. Make a throwaway KB `$T/kb`: a git repo with one commit, a bare origin `$T/kb-origin.git`, and the folder `claude-research/session-retro/`. Write `$T/kb/other.md` with no commit.
+2. Make a throwaway KB `$T/kb`: a git repo with one commit, a bare origin `$T/kb-origin.git`, and the folder `claude-research/session-retro/`. Make `$T/kb/.claude/CLAUDE.md` a symlink to `.claude/CLAUDE.md` of the harness checkout you test. The `kb` skill needs that file in a KB. Put `.claude/` in `$T/kb/.gitignore`, in the one commit. Write `$T/kb/other.md` with no commit.
 3. Make `$T/projects/p/<sid>.jsonl`, with `<sid>` a made-up session ID. Each line has a `timestamp` more than 60 minutes old.
 4. Put a stub `claude` in `$T/bin/claude` that logs each call to `$T/claude.log` and exits 0.
 5. Set `CLAUDE_CODE_SESSION_ID=<sid>`, `SESSION_RETRO_PROJECTS=$T/projects`, `SESSION_RETRO_KB=$T/kb`, `SESSION_RETRO_STATE=$T/state`, `SESSION_RETRO_CLAUDE=$T/bin/claude` and `SESSION_RETRO_SETTLE=0`.
