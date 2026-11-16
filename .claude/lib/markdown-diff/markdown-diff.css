@@ -1,0 +1,19 @@
+/* markdown-diff.css - the look of what markdown-diff.js renders, used by VS Code's
+ * Markdown Diff. A page sets the --md-* colours it wants different.
+ */
+.md-ins { background: var(--md-ins-bg, rgba(46, 160, 67, .22)); border-left: 4px solid #2ea043; padding: 1px 10px; margin: 6px 0; }
+.md-del { background: var(--md-del-bg, rgba(248, 81, 73, .22)); border-left: 4px solid #f85149; padding: 1px 10px; margin: 6px 0; }
+.md-del > *:not(details) { text-decoration: line-through; text-decoration-color: rgba(248, 81, 73, .7); }
+/* A changed block (not a quote) has a tan bar but no fill, so the changed words in it stand
+   out: strong green and red. */
+.md-chg { border-left: 4px solid var(--md-chg-bar, #D2B48C); padding: 1px 10px; margin: 6px 0; }
+.md-chg ins { background: rgba(46, 160, 67, .38); color: var(--md-ins-fg, inherit); text-decoration: none; border-radius: 3px; padding: 0 2px; }
+.md-chg del { background: rgba(248, 81, 73, .38); color: var(--md-del-fg, inherit); border-radius: 3px; padding: 0 2px;
+  text-decoration-color: rgba(255, 215, 211, .8); }
+
+/* Unchanged blocks, folded like a code diff's unmodified lines (MarkdownDiff.fold). */
+.md-fold { margin: 6px 0; }
+.md-fold > summary { list-style: none; cursor: pointer; padding: 4px 10px; border-radius: 6px;
+  background: var(--md-fold-bg, rgba(128, 128, 128, .15)); color: var(--md-fold-fg, inherit); font-size: 13px; }
+.md-fold > summary::before { content: "⋯ "; }
+.md-fold[open] > summary { margin-bottom: 6px; }
