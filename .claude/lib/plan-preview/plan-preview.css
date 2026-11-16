@@ -1,0 +1,52 @@
+/* plan-preview: folded parts, the states-only links, and the answer popup. The marks of the research
+ * questions use emoji-bullets.css. Colours come from the palette (.claude/lib/palette/palette.css). No emoji here. */
+details.pp-part > summary { cursor: pointer; }
+li.pp-part { list-style: none; margin-left: -1.2em; }
+
+.pp-links { margin: 4px 0; }
+.pp-link { position: relative; color: var(--pv-link, var(--pal-light-blue)); text-decoration: underline dotted; cursor: help; margin-right: 1em; }
+.pp-tip {
+  display: none; position: absolute; left: 0; top: 100%; z-index: 20; width: max-content; max-width: 40em;
+  padding: 6px 10px; border-radius: 4px; text-decoration: none; color: var(--vscode-editorHoverWidget-foreground, var(--pal-linen));
+  background: var(--vscode-editorHoverWidget-background, var(--pal-charcoal)); border: 1px solid var(--pal-slate-blue);
+}
+.pp-link:hover > .pp-tip, .pp-link:focus > .pp-tip { display: block; }
+
+.pp-overlay { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
+.pp-modal {
+  position: relative; box-sizing: border-box; width: 80vw; max-height: 80vh; overflow: auto; padding: 16px 24px; border-radius: 8px;
+  background: var(--vscode-editor-background, var(--pal-charcoal)); border: 1px solid var(--pal-slate-blue);
+}
+.pp-send { text-decoration: none; display: inline-block; }
+.pp-send:focus { outline: 2px solid var(--pal-tan); color: var(--pal-white); }
+.pp-close, .pp-send, .pp-cancel {
+  color: var(--pal-white); background: var(--pal-slate-blue); border: 0; border-radius: 4px; padding: 3px 10px; cursor: pointer;
+}
+.pp-head {
+  position: sticky; top: -16px; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: -16px -24px 16px; padding: 14px 24px;
+  background: var(--vscode-editor-background, var(--pal-charcoal)); border-bottom: 1px solid var(--pal-slate-blue);
+}
+.pp-open { margin-right: auto; white-space: nowrap; color: var(--pal-light-blue); }
+.pp-fb { margin: 0 0 12px; }
+.pp-head .pp-fb { margin: 0; }
+.pp-fb { white-space: nowrap; }
+.pp-pick {
+  display: inline-block; margin-left: 6px; padding: 3px 12px; border-radius: 4px; text-decoration: none;
+  color: var(--pal-white); background: var(--pal-slate-blue); border: 1px solid var(--pal-slate-blue);
+}
+.pp-pick:hover { color: var(--pal-white); border-color: var(--pal-light-blue); }
+.pp-pick.pp-on, .pp-pick.pp-on:hover { color: var(--pal-navy); background: var(--pal-tan); border-color: var(--pal-tan); }
+.pp-ask-overlay { z-index: 50; }
+.pp-ask {
+  box-sizing: border-box; width: min(36em, 90vw); padding: 16px 20px; border-radius: 8px;
+  background: var(--vscode-editor-background, var(--pal-charcoal)); border: 1px solid var(--pal-slate-blue);
+}
+.pp-ask-title { color: var(--pal-tan); font-weight: bold; margin-bottom: 10px; }
+.pp-reason {
+  box-sizing: border-box; width: 100%; resize: vertical; font: inherit; padding: 8px 10px;
+  color: var(--pal-linen); background: var(--pal-navy); border: 1px solid var(--pal-slate-blue); border-radius: 4px;
+}
+.pp-ask-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+
+/* a disagree reason of many lines keeps its lines in the legend */
+.eb-first { white-space: pre-line; }
