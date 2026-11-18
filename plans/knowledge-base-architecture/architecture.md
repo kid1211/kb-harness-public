@@ -26,7 +26,7 @@ flagged: A Bash write skipped the check. The PostToolUse hook names each KB file
 kb_guard: The PreToolUse hook kb-guard.sh
 kb_after: The PostToolUse hook kb-after.sh
 kb_check: The script kb-check.py, which holds every file rule
-media-icloud-sync: The skill that keeps photos and PDFs in iCloud, behind a symlink at the KB path
+media-icloud-sync: The skill that keeps PII data and large files, such as photos and PDFs, out of git. They go on the gitignore list and into cloud storage, iCloud or Google Drive, behind a symlink at the KB path
 op-fork-new-wt: The skill that opens a fork session, where the user settles a conflict
 start -> which-tool?
 which-tool? -> which-area? [Write or Edit], flagged [Bash, a KB file], written [Bash, not a KB file]

@@ -2,7 +2,7 @@
 """The scans of plans/public-release. Standard library only.
 
   scan.py pii   <dir> <allow-list>   PII hits off the allow list
-  scan.py names <dir> <deny-list>    deny terms, in file text and in paths
+  scan.py names <dir> <deny-list>    deny terms, in file text and in paths. deny-allow/<type>.txt lists the files that may hold its terms
   scan.py list  <dir> <deny-list>    a copy of the deny list file in <dir>
   scan.py sample <kind>              a planted hit of a PII kind, made at run time
   scan.py owners <dir> <listed>      each plan, model and test a listed skill needs, off <listed>
@@ -129,13 +129,44 @@ def scan_pii(root, allow_path):
     return hits
 
 
+# The allow lists of the name scan: one file per type, deny-allow/<type>.txt next to this script,
+# such as cloud-storage.txt. Its "term: <term>" lines name the terms of the type, and each other line
+# is a path where they may stand in the text. The file name holds no term, so a list of changed files
+# names none. A term is never allowed in a path name. DENY_ALLOW names another folder, for the tests.
+def allow_file(path):
+    terms, paths = set(), []
+    for line in read_list(path):
+        if line.startswith("term:"):
+            terms.add(fold(line[5:].strip()))
+        else:
+            paths.append(os.path.normpath(line))
+    return terms, paths
+
+
+def deny_allowed(folder):
+    ok = {}
+    if os.path.isdir(folder):
+        for f in sorted(os.listdir(folder)):
+            if f.endswith(".txt"):
+                terms, paths = allow_file(os.path.join(folder, f))
+                for rel in paths:
+                    ok.setdefault(rel, set()).update(terms)
+    return ok
+
+
 def scan_names(root, deny_path):
-    hit = names_matcher(deny_terms(deny_path))
+    terms = deny_terms(deny_path)
+    hit_path = names_matcher(terms)
+    allow = deny_allowed(os.environ.get("DENY_ALLOW") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "deny-allow"))
     hits = 0
     for rel, text in walk(root):
-        if hit(fold(rel)):
+        if hit_path(fold(rel)):
             print(f"{rel}:path name")
             hits += 1
+        ok = allow.get(os.path.normpath(rel), set())
+        if os.path.basename(os.path.dirname(rel)) == "deny-allow" and rel.endswith(".txt"):
+            ok = ok | allow_file(os.path.join(root, rel))[0]  # an allow list names its own terms, no other
+        hit = names_matcher([x for x in terms if x not in ok]) if ok else hit_path
         for n, line in enumerate(text.splitlines(), 1):
             if hit(fold(line)):
                 print(f"{rel}:{n} name")
