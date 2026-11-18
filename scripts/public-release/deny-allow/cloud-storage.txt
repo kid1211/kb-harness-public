@@ -1,0 +1,8 @@
+# Cloud storage: the files of the copy that may name iCloud, one choice of cloud storage with
+# Google Drive. The name scan allows the term below in these files only.
+term: icloud
+plans/knowledge-base-architecture/0-index.md
+plans/knowledge-base-architecture/1-design.md
+plans/knowledge-base-architecture/architecture.md
+plans/knowledge-base-architecture/alt-design-decisions.md
+plans/knowledge-base-architecture/alt-requirements.md

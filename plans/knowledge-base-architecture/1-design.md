@@ -69,7 +69,7 @@ The PreToolUse hook `kb-guard.sh` gets the path of a Write, Edit or MultiEdit. I
 A source file. The hook passes it if the name or its event folder has a date or `undated-`, and the file does not exist yet. An existing source file is source as it came in: the hook returns `ask`, so the user approves a fix, such as a better OCR line (`sourceWith`).
 
 - **Invariants:** `sourceHasDate`, `sourceKeptAsItCame`.
-- **Expected output:** a new `.source.` file with a date, or a refusal that names the missing date. A photo or PDF goes to iCloud through `media-icloud-sync`, with the suffix on both the symlink and its target.
+- **Expected output:** a new `.source.` file with a date, or a refusal that names the missing date. PII data or a large file, such as a photo or PDF, goes on the gitignore list and into cloud storage, iCloud or Google Drive, through `media-icloud-sync`, with the suffix on both the symlink and its target.
 
 ### Free
 

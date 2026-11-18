@@ -30,6 +30,26 @@ check "names: a full-width term matches after the NFKC fold" '[ $rc -ne 0 ]'
 one ok.md "clean"; mkdir -p "$T/d/zorblax"; echo x > "$T/d/zorblax/f.txt"
 bash "$S" names "$T/d" > /dev/null; rc=$?
 check "names: a term in a path stops" '[ $rc -ne 0 ]'
+export DENY_ALLOW="$T/allow"; mkdir -p "$DENY_ALLOW"; printf '# a comment\nterm: zorblax\nok.md\nsub/two.md\n' > "$DENY_ALLOW/made-up.txt"
+rm -rf "$T/d"; mkdir -p "$T/d/sub"; printf 'zorblax here\n' > "$T/d/ok.md"; printf 'zorblax\n' > "$T/d/sub/two.md"
+bash "$S" names "$T/d" > /dev/null; rc=$?
+check "names: deny-allow/<type>.txt allows its terms in each file it lists" '[ $rc -eq 0 ]'
+printf 'zorblax\n' > "$T/d/other.md"
+bash "$S" names "$T/d" > "$T/out"; rc=$?
+check "names: the allow list does not reach a file it does not list" '[ $rc -ne 0 ] && grep -q "other.md:1" "$T/out" && ! grep -q "ok.md" "$T/out"'
+rm -f "$T/d/other.md"; printf '测试词 and zorblax\n' > "$T/d/ok.md"
+bash "$S" names "$T/d" > /dev/null; rc=$?
+check "names: the allow list allows only its own term" '[ $rc -ne 0 ]'
+rm -rf "$T/d"; mkdir -p "$T/d/zorblax"; echo x > "$T/d/zorblax/f.txt"; echo "zorblax/f.txt" >> "$DENY_ALLOW/made-up.txt"
+bash "$S" names "$T/d" > /dev/null; rc=$?
+check "names: the allow list never allows a term in a path" '[ $rc -ne 0 ]'
+rm -rf "$T/d"; mkdir -p "$T/d/deny-allow"; printf 'term: zorblax\nzorblax.md\n' > "$T/d/deny-allow/made-up.txt"
+bash "$S" names "$T/d" > /dev/null; rc=$?
+check "names: an allow list may name its own terms" '[ $rc -eq 0 ]'
+printf '测试词.md\n' >> "$T/d/deny-allow/made-up.txt"
+bash "$S" names "$T/d" > /dev/null; rc=$?
+check "names: an allow list holding another term stops" '[ $rc -ne 0 ]'
+unset DENY_ALLOW
 
 mail="someone.real@$(printf 'example.%s' net)"
 one m.md "write to $mail"; ALLOW_NO_GITLEAKS=1 bash "$S" pii "$T/d" > "$T/out"; rc=$?
