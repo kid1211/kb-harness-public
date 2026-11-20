@@ -16,3 +16,5 @@ These were built as part of the `writing-check` level, and moved here on 2026-10
   - Serves: F1
 - 🚀 **R12. The report pane:** [implement] a press of the dim `⚙ config` button at the right of the band opens a pane with what `writing-check.py report` prints, if it is closed, and closes it if it is open. `/writing-check` only opens it. The pane has a Refresh button. *(the user, 2026-10-28)*
   - Serves: F2
+- 🚀 **R13. The folders button:** [implement] a dim `⧉ folders` button sits left of `⚙ config` in the writing-mode row. Both buttons run one logic: a press runs `/<command> toggle` of the mod that owns the pane, `/folders` or `/writing-check`, which opens the pane if it is closed and closes it if it is open. The folder-pane mod owns, draws and fills its pane. *(the user, 2026-11-20)*
+  - Serves: F3

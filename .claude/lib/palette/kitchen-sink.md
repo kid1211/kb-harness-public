@@ -154,6 +154,19 @@ Lucide-style strokes in one colour, used before a node's name. The user picked t
 
 The user reviewed 80 rows of emoji choices on 2026-10-23 and kept none: emoji look poor on the dark theme. The status marks in use (🎯 🌟 🚀 ✅) stay until the user says which of section 6a replaces them. A requirement that is new or changed, and that `p-req` has not checked yet, is ⚪, the same mark as "not checked yet" in section 6b (the user, 2026-10-25).
 
+## 6c. Button glyphs above the prompt (for the user to review)
+
+A text glyph in front of a button label in the line above the prompt, drawn in the terminal font, dim like the label. `⚙` of `⚙ config` (writing-mode) is in use. Choices for the `folders` button of the folder pane, added 2026-11-20:
+
+| Keep | Glyph | Name | How it looks |
+|---|---|---|---|
+| ☑ | `⚙` | gear, in use | `⚙ config` |
+| ☐ | `🗀` | folder, U+1F5C0, a text glyph not the emoji 📁 | `🗀 folders` |
+| ☐ | `⌂` | house | `⌂ folders` |
+| ☐ | `☰` | three lines | `☰ folders` |
+| ☑ | `⧉` | two squares, kept by the user 2026-11-20 for the folders button | `⧉ folders` |
+| ☐ | `▤` | lined square | `▤ folders` |
+
 ## 6b. Research question marks
 
 The user asked for these on 2026-10-24, in VS Code's preview of a `0-index.md`. Each mark is the bullet of its line, and a hover shows the legend with its row in bold. They are in use, in `.claude/lib/plan-preview/plan-preview.js`. Change one here and there.
