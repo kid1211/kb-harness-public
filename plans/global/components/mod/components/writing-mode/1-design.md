@@ -138,6 +138,7 @@ Rules no test can see:
 | R1 | built. `cycle` and `fileWrittenClean` hold its press, test `press reads the file` |
 | R2 | built. `compose` and `casualOnly`, test `compose reads the file` |
 | R12 | `togglePane`, `configToggles`, `paneOnlyByConfig`, the runs `toggleTest` and `toggleCloseTest`, test `config toggle`. The report in the pane is built and its tests stay. |
+| R13 | not in the model: a button that opens the pane of another mod. Test `folders button`. The folder-pane plan holds the pane. |
 | R10 of the `mod` level | `closePane`, `onePane`, the run `onePaneTest`. No test: the test kit cannot open a pane for a second plugin. The user checks it live. |
 | R8 | `readModes`, `modesFromFile`, `fileWrittenClean`, the runs `badTest` and `cycleBadTest`, tests `bad file`, `other session`, `press reads the file` and `compose reads the file` |
 | R9 | `ownRowFirst`, the run `roundsOuterTest`, test `top row` |

@@ -8,3 +8,13 @@ The checks on each PR and push scan for PII, secrets and a private list of names
 unit tests of the scans. A PR from a fork cannot pass the name scan, since it gets no secret.
 
 Some files name paths of the private harness that are not in this repo. Those links do not resolve here.
+
+## Multi-folder sessions
+
+One session on several folders, with a map of folder to project and its supporting docs.
+
+- **The map:** a Markdown table with the columns Folder, Project, Role and KB. Set `PROJECT_MAP` to its path. With no `PROJECT_MAP`, `scripts/project-map.py` reads `~/second-brain/personal/claude-research/projects.md`.
+- **Start:** `bash scripts/project-start.sh <project>` runs `claude` with `--add-dir` for each folder of the project. Or type `/add-dir <folder>` in a session.
+- **Hooks:** `.claude/settings.json` wires `add-dir-context.sh` and `nested-instructions.sh`. The first tells Claude the project, role and docs of a folder on the next prompt. The second gives the `CLAUDE.md` files of a subfolder in an added folder, which Claude Code does not load.
+- **Status line:** pipe the status line input to `scripts/statusline-folders.sh` in your `~/.claude/statusline.sh`. It prints the added folders by project, and writes the session file that the hooks and the pane read.
+- **Pane:** the `folder-pane` mod adds a `folders` button and `/folders`, with the folders by role, the supporting docs and the instructions files loaded.

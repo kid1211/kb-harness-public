@@ -61,6 +61,21 @@ async function refresh($: Engine) {
   await update($, report, () => (r.exitCode === 0 ? r.stdout : r.stderr || `exit ${r.exitCode}`))
 }
 
+// The pane buttons at the right of the band, one logic for each: a press runs the
+// `/<command> toggle` of the mod that owns the pane, which opens it or closes it.
+// The folder pane belongs to the folder-pane mod, the report pane to this one.
+const PANE_BUTTONS = [
+  { key: 'folders', label: '⧉ folders', command: 'folders' },
+  { key: 'config', label: '⚙ config', command: 'writing-check' },
+] as const
+
+// A call of this mod's own command skips this mod's hooks, so `/writing-check toggle`
+// runs as the call it would make: the same toggle either way.
+async function togglePane($: Engine, command: string) {
+  if (command === 'writing-check') return toggle($)
+  await $.command.run({ command, args: 'toggle' })
+}
+
 // The config button: a press on an open pane closes it. /writing-check only opens.
 async function toggle($: Engine) {
   if ((await $.ui.panes()).some(p => p.id === PANE)) return $.ui.close({ id: PANE })
@@ -84,7 +99,12 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('command.run', { command: 'writing-check' }, async $ => {
+  // `/writing-check` opens the pane. `/writing-check toggle`, from the config button, also closes it.
+  on('command.run', { command: 'writing-check' }, async ($, e) => {
+    if (e.args.trim() === 'toggle') {
+      await toggle($)
+      return {}
+    }
     await show($)
     return { text: 'Writing check pane opened.' }
   })
@@ -162,7 +182,15 @@ export const register: Register = on => {
           <Text> </Text>
           <Button key="docs" label={`docs: ${m.docs}`} onPress={cycle('docs')} />
         </Box>
-        <Button key="config" label="⚙ config" plain dimColor onPress={() => toggle($)} />
+        <Box>
+          {PANE_BUTTONS.map((b, i) => (
+            <Box key={`${b.key}-slot`}>
+              {i ? <Text>  </Text> : null}
+              <Button key={b.key} label={b.label} plain dimColor
+                onPress={() => togglePane($, b.command)} />
+            </Box>
+          ))}
+        </Box>
       </Box>
     )
     return typeof below === 'object' && below
