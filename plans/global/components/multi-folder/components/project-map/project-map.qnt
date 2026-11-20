@@ -35,9 +35,9 @@ module projectMap {
   pure def innerOf(m: Set[Row], path: str): Set[str] =
     homeOf(m, path).filter(f => not(homeOf(m, path).exists(k => inside.contains((k, f)))))
 
-  var phase: str          // asked, read, folders, project, fallback, listed, no_map
+  var phase: str          // asked, read, folders, project, fallback, listed, no_map, checked, unmapped
   var mapExists: bool
-  var kind: str           // folders, project, list
+  var kind: str           // folders, project, list, check
   var arg: str            // the project name or the path
   var out: Set[str]       // what the script prints
 
@@ -47,7 +47,7 @@ module projectMap {
   }
   action init = all {
     nondet e = Set(true, false).oneOf()
-    nondet k = Set("folders", "project", "list").oneOf()
+    nondet k = Set("folders", "project", "list", "check").oneOf()
     nondet a = names.union(paths).oneOf()
     initWith(e, k, a),
   }
@@ -85,12 +85,21 @@ module projectMap {
   /// F1: the list of projects.
   action list = all { phase == "read", mapExists, kind == "list", keep("listed", projectsOf(rows)) }
 
-  /// F1: the look-up ends where it printed.
-  action done = all {
-    Set("folders", "project", "fallback", "listed", "no_map").contains(phase), keep(phase, out),
+  /// F5: the folder of a commit is on the map, so the check is quiet.
+  action checked = all {
+    phase == "read", mapExists, kind == "check", homeOf(rows, arg).size() > 0, keep("checked", Set()),
+  }
+  /// F5: the folder of a commit is on no row, so the check names it.
+  action unmapped = all {
+    phase == "read", mapExists, kind == "check", homeOf(rows, arg).size() == 0, keep("unmapped", Set(arg)),
   }
 
-  action step = any { read, noMap, folders, unknownProject, project, fallback, list, done }
+  /// F1: the look-up ends where it printed.
+  action done = all {
+    Set("folders", "project", "fallback", "listed", "no_map", "checked", "unmapped").contains(phase), keep(phase, out),
+  }
+
+  action step = any { read, noMap, folders, unknownProject, project, fallback, list, checked, unmapped, done }
 
   /// F1: with no map, the script prints nothing.
   val noMapPrintsNothing = phase == "no_map" implies out == Set()
@@ -101,6 +110,10 @@ module projectMap {
     (out.size() == 1 and out.forall(p => foldersOf(rows, p).exists(f => innerOf(rows, arg).contains(f))))
   /// F3: a path the map does not know never reaches an error, it falls back.
   val unknownFallsBack = (phase == "fallback") implies (homeOf(rows, arg).size() == 0 and out == Set(nameAt(arg)))
+  /// F5: the check names a folder only when no folder of the map holds it.
+  val unmappedNamesFolder = phase == "unmapped" implies (homeOf(rows, arg).size() == 0 and out == Set(arg))
+  /// F5: a folder on the map makes the check quiet.
+  val checkedQuiet = phase == "checked" implies (homeOf(rows, arg).size() > 0 and out == Set())
   /// NEGATIVE CONTROL: false on purpose, since a known project prints its folders.
   val neverFolders = phase != "folders"
 
@@ -130,4 +143,13 @@ module projectMap {
   /// F1: list prints each project.
   /// listed
   run listTest = initWith(true, "list", "shop").then(read).then(list).expect(out == Set("shop", "personal", "admin"))
+  /// F5: a commit in a folder of the map.
+  /// checked
+  run checkedTest = initWith(true, "check", "/code/shop-api").then(read).then(checked).expect(out == Set())
+  /// F5: a commit in a folder on no row.
+  /// unmapped
+  run unmappedTest = initWith(true, "check", "/tmp/other").then(read).then(unmapped).expect(out == Set("/tmp/other"))
+  /// F5: a commit with no map.
+  /// no_map
+  run checkNoMapTest = initWith(false, "check", "/tmp/other").then(read).then(noMap).expect(phase == "no_map")
 }

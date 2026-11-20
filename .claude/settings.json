@@ -80,6 +80,16 @@
             "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/skills/draw-graph/hooks/check-graph.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git *)",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/project-map-check.sh"
+          }
+        ]
       }
     ],
     "DirectoryAdded": [

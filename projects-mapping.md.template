@@ -1,0 +1,11 @@
+# Project map
+
+This file maps each folder you work in to its project and its KB. It stays on this machine: git ignores `projects-mapping.md`.
+
+- Copy this file to `projects-mapping.md` in the harness main checkout, then add one row per folder.
+- `scripts/project-map.py` reads the first table. The status line, the folders pane, the project start and the `/add-dir` hook read it through that script.
+- After each git commit, the `project-map-check` hook names a folder that is on no row.
+
+| Project | Folder | Role | KB | Note |
+|---|---|---|---|---|
+| harness | ~/second-brain/harness | tooling | personal | the skills, hooks and settings that each KB shares |

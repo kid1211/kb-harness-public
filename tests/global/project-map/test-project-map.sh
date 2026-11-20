@@ -60,4 +60,20 @@ ok "a missing map exits 2 and prints nothing" '[ $rc = 2 ] && [ -z "$out" ] && g
 echo "no table here" > "$t/empty.md"
 out=$(PROJECT_MAP="$t/empty.md" python3 -I "$script" list 2>"$t/err"); rc=$?
 ok "a map with no table exits 2" '[ $rc = 2 ] && [ -z "$out" ] && grep -q "no project map" "$t/err"'
+# checked / unmapped: checkedQuiet, unmappedNamesFolder
+out=$(run check "$t/code/shop-api/x" 2>&1); rc=$?
+ok "check of a folder on the map is quiet" '[ $rc = 0 ] && [ -z "$out" ]'
+out=$(run check "$t/other" 2>&1); rc=$?
+ok "check of a folder on no row names it and exits 1" '[ $rc = 1 ] && [ "$out" = "not on the map: $t/other" ]'
+out=$(PROJECT_MAP="$t/none.md" python3 -I "$script" check "$t/other" 2>&1); rc=$?
+ok "check with no map exits 2" '[ $rc = 2 ] && [[ $out == "no project map:"* ]]'
+# F4: with no PROJECT_MAP, the map is projects-mapping.md of the main checkout, also from a worktree
+h="$t/harness"; mkdir -p "$h/scripts"; cp "$script" "$h/scripts/"
+git -C "$h" init -q && git -C "$h" add . && git -C "$h" -c user.name=t -c user.email=t@t commit -qm x
+git -C "$h" worktree add -q "$t/wt" 2>/dev/null
+printf '| Project | Folder |\n|---|---|\n| shop | %s |\n' "$t/code/shop-web" > "$h/projects-mapping.md"
+out=$(env -u PROJECT_MAP python3 -I "$h/scripts/project-map.py" list); rc=$?
+ok "the default map is projects-mapping.md of the checkout" '[ $rc = 0 ] && [ "$out" = "shop: $t/code/shop-web" ]'
+out=$(env -u PROJECT_MAP python3 -I "$t/wt/scripts/project-map.py" list); rc=$?
+ok "a worktree reads the map of the main checkout" '[ $rc = 0 ] && [ "$out" = "shop: $t/code/shop-web" ]'
 exit $fail
