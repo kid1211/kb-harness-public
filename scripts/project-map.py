@@ -4,16 +4,34 @@
   project-map.py folders <project>   each folder of the project, one per line
   project-map.py project <path>      the project of the folder that holds the path,
                                      else the last folder name of the path
+  project-map.py check <path>        quiet when a folder of the map holds the path,
+                                     else "not on the map: <path>" and exit 1
   project-map.py list                each project with its folders
 
 The map is the first Markdown table with a Project and a Folder column in
-$PROJECT_MAP, else ~/second-brain/personal/claude-research/projects.md.
+$PROJECT_MAP, else projects-mapping.md in the main checkout of this harness.
+Git ignores that file; projects-mapping.md.template is its start.
 Plan: plans/global/components/multi-folder/components/project-map/.
 """
 import os
+import subprocess
 import sys
 
-DEFAULT = "~/second-brain/personal/claude-research/projects.md"
+
+def default_map():
+    """projects-mapping.md in the main checkout of the repo that holds this script."""
+    here = os.path.dirname(os.path.realpath(__file__))
+    try:
+        common = subprocess.run(["git", "-C", here, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                                capture_output=True, text=True, check=True).stdout.strip()
+        root = os.path.dirname(common)
+    except (OSError, subprocess.CalledProcessError):
+        root = os.path.dirname(here)
+    return os.path.join(root, "projects-mapping.md")
+
+
+def map_path():
+    return os.path.expanduser(os.environ.get("PROJECT_MAP") or default_map())
 
 
 def read_rows(path):
@@ -59,13 +77,13 @@ def projects(rows):
 
 
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("folders", "project", "list") or (argv[1] != "list" and len(argv) != 3):
+    if len(argv) < 2 or argv[1] not in ("folders", "project", "check", "list") or (argv[1] != "list" and len(argv) != 3):
         print(__doc__.strip(), file=sys.stderr)
         return 64
-    map_path = os.path.expanduser(os.environ.get("PROJECT_MAP") or DEFAULT)
-    rows = read_rows(map_path)
+    path = map_path()
+    rows = read_rows(path)
     if rows is None:
-        print(f"no project map: {map_path}", file=sys.stderr)
+        print(f"no project map: {path}", file=sys.stderr)
         return 2
     kind = argv[1]
     if kind == "list":
@@ -81,6 +99,11 @@ def main(argv):
             return 1
         print("\n".join(found))
         return 0
+    if kind == "check":
+        if project_of(rows, arg):
+            return 0
+        print(f"not on the map: {arg}", file=sys.stderr)
+        return 1
     print(project_of(rows, arg) or folder_name(arg))
     return 0
 

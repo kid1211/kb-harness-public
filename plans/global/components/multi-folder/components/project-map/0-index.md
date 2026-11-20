@@ -2,12 +2,12 @@
 
 ## Goal
 
-One page in the `personal` KB maps each folder to its project and its KB. A script reads it, so Claude, the status line and the project start look it up fast.
+One local file, `projects-mapping.md` in the harness main checkout, maps each folder to its project and its KB. Git ignores it, so it stays on this machine. A script reads it, so Claude, the status line and the project start look it up fast.
 
 Route: poc
 
-Builds: `scripts/project-map.py` (look-up by project or by folder), `tests/global/project-map/`, and the map page `claude-research/projects.md` in the `personal` KB
-Uses: the `personal` KB, the `kb` skill (where a KB file goes)
+Builds: `scripts/project-map.py` (look-up by project or by folder, and the check of a folder), `.claude/hooks/project-map-check.sh` (the check after a git commit), `projects-mapping.md.template`, the `projects-mapping.md` line of `.gitignore`, `tests/global/project-map/`
+Uses: git
 
 ## Architecture
 
@@ -22,6 +22,8 @@ The user's wants, from the parent level `plans/global/components/multi-folder/`.
 - **F1.** A page lists each folder with its project, its KB, and a short note on what it holds. *(the user, 2026-11-19)*
 - **F2.** Claude finds the folders of a project, and the project of a folder, with one command. *(the user, 2026-11-19)*
 - **F3.** A folder that is not on the map shows as its own folder name, with no error. *(the user, 2026-11-19)*
+- **F4.** The map is a local file, `projects-mapping.md`, that git ignores, not a page in a KB. *(the user, 2026-11-20)*
+- **F5.** After a git commit, a hook checks the map. If the map is missing, it tells Claude to set it up. If the folder of the commit is not on the map, it tells Claude to ask the user to add it. *(the user, 2026-11-20)*
 
 ## Open questions
 

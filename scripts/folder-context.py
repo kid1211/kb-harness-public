@@ -62,7 +62,7 @@ def main(argv):
     if not folders:
         print(__doc__.strip(), file=sys.stderr)
         return 64
-    rows = read_table(os.path.expanduser(os.environ.get("PROJECT_MAP") or pm.DEFAULT))
+    rows = read_table(pm.map_path())
     found = [context(rows, f) for f in folders]
     if as_json:
         print(json.dumps(found))
