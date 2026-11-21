@@ -1,0 +1,8 @@
+.DS_Store
+.tokensave/
+
+# .claude/ holds links into the harness plus this machine's own settings.local.json.
+# The linked content is versioned in the harness repo, not here.
+/.claude/
+
+_apalache-out/

@@ -4,6 +4,8 @@
 #   scan.sh pii <dir>      PII off the allow list, then the secrets of gitleaks (needed, unless ALLOW_NO_GITLEAKS=1)
 #   scan.sh names <dir>    the deny list of $DENY_LIST, default deny-list.txt here
 #   scan.sh plant          each scan must catch a planted hit of each kind, or this fails (scans_catch?)
+#   scan.sh release <dir> <base>   R56, in the scans job with pii: each file has an e2e test, and the PR
+#                          adds a changelog whose E2E tests part names each test that covers a change
 set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 DENY_LIST=${DENY_LIST:-$HERE/deny-list.txt}
@@ -46,9 +48,28 @@ plant() {
   echo "planted hits caught: $caught"
 }
 
+# R56: a release PR holds its changelog and its e2e tests. <dir> is a git checkout, <base> the PR base.
+release() {
+  local d=$1 base=$2 rc=0 new f t W
+  python3 -I "$HERE/scan.py" e2e "$d" || rc=1
+  new=$(git -C "$d" diff --name-only --diff-filter=A "$base" HEAD -- 'changelogs/*.md') || { echo "release: cannot diff against $base"; return 1; }
+  [ -n "$new" ] || { echo "changelogs/: the PR adds no changelog (no_changelog)"; return 1; }
+  W=$(mktemp -d); trap 'rm -rf "$W"' RETURN
+  git -C "$d" diff --name-only "$base" HEAD -- . ':!changelogs/' > "$W/changed"
+  python3 -I "$HERE/scan.py" e2e-for "$d" "$W/changed" > "$W/want"
+  for f in $new; do
+    grep -qx '## E2E tests' "$d/$f" || { echo "$f: no E2E tests part (no_e2e)"; rc=1; continue; }
+    while IFS= read -r t; do
+      [ -z "$t" ] || grep -qxF -- "- $t" "$d/$f" || { echo "$f: the E2E tests part does not name $t (no_e2e)"; rc=1; }
+    done < "$W/want"
+  done
+  return $rc
+}
+
 case "${1:-}" in
   pii)   pii "$2" ;;
   names) python3 -I "$HERE/scan.py" names "$2" "$DENY_LIST" ;;
   plant) plant ;;
+  release) release "$2" "$3" ;;
   *)     sed -n '2,6p' "$0" >&2; exit 2 ;;
 esac
