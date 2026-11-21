@@ -6,6 +6,8 @@
   scan.py list  <dir> <deny-list>    a copy of the deny list file in <dir>
   scan.py sample <kind>              a planted hit of a PII kind, made at run time
   scan.py owners <dir> <listed>      each plan, model and test a listed skill needs, off <listed>
+  scan.py e2e   <dir>                each file of <dir> that no e2e test of tests/e2e/ names in its Covers (R56)
+  scan.py e2e-for <dir> <changed>    the e2e tests whose Covers name a file of <changed>, one path per line
 
 Each hit prints as <file>:<line> <rule>, never the matched text. A path hit has
 the line "path". Exit 0 clean, 1 on a hit, 2 when the deny list is missing or empty.
@@ -257,7 +259,57 @@ def settings(src, listed_path):
     return json.dumps({"hooks": out}, indent=2) + "\n" if out else ""
 
 
+# R56: these need no e2e test. Plans and tests are what the tests come from, the rest is no code.
+E2E_FREE = ("plans/", "tests/", "changelogs/", ".github/")
+E2E_FREE_FILES = {"README.md", "package.json", "package-lock.json", ".gitignore", "LICENSE"}
+
+
+def e2e_covers(root):
+    """{test path: [Covers paths]} of each tests/e2e/<part>/<test>.md. A path ending in / is a folder."""
+    out = {}
+    base = os.path.join(root, "tests", "e2e")
+    for d, _, names in os.walk(base):
+        for n in sorted(names):
+            if n.endswith(".md"):
+                p = os.path.join(d, n)
+                m = re.search(r"^## Covers\n(.*?)(?=^## |\Z)", open(p, encoding="utf-8").read(), re.S | re.M)
+                out[os.path.relpath(p, root)] = re.findall(r"`([^`\s]+)`", m.group(1)) if m else []
+    return out
+
+
+def covered(f, paths):
+    return any(f == c or (c.endswith("/") and f.startswith(c)) for c in paths)
+
+
+def e2e(root):
+    """R56: each file of the copy, but plans, tests and docs, is named by the Covers of an e2e test."""
+    allc = [c for cs in e2e_covers(root).values() for c in cs]
+    miss = 0
+    for d, dirs, names in os.walk(root):
+        dirs[:] = [x for x in dirs if x != ".git"]
+        for n in names:
+            f = os.path.relpath(os.path.join(d, n), root)
+            if (f.startswith(E2E_FREE) or f in E2E_FREE_FILES or "/tests/" in f
+                    or ".test." in n or covered(f, allc)):
+                continue
+            print(f"{f}: no e2e test of tests/e2e/ covers it (no_e2e)")
+            miss += 1
+    return miss
+
+
+def e2e_for(root, changed_path):
+    """The e2e tests that cover a changed file, and each changed e2e test itself."""
+    changed = read_list(changed_path)
+    return sorted(t for t, cs in e2e_covers(root).items()
+                  if t in changed or any(covered(f, cs) for f in changed))
+
+
 def main(argv):
+    if len(argv) == 3 and argv[1] == "e2e":
+        return 1 if e2e(argv[2]) else 0
+    if len(argv) == 4 and argv[1] == "e2e-for":
+        print("\n".join(e2e_for(argv[2], argv[3])))
+        return 0
     if len(argv) == 3 and argv[1] == "sample":
         print(sample(argv[2]))
         return 0

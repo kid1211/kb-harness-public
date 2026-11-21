@@ -127,5 +127,33 @@ check "plant: a gitleaks that finds nothing fails" '[ $rc -ne 0 ] && grep -q "mi
 DENY_LIST="$T/none.txt" bash "$S" plant > "$T/out"; rc=$?
 check "plant: no deny list fails" '[ $rc -ne 0 ] && grep -q "no deny list" "$T/out"'
 
+# R56: e2e coverage, the tests that cover a change, and the release check of a PR.
+rm -rf "$T/r"; mkdir -p "$T/r/tests/e2e/a" "$T/r/tools" "$T/r/plans/x"
+printf '# a\n\n## Covers\n\n- `tools/`\n\n## Setup\n' > "$T/r/tests/e2e/a/one.md"
+echo x > "$T/r/tools/t.sh"; echo x > "$T/r/plans/x/0-index.md"; echo x > "$T/r/README.md"
+python3 -I "$HERE/scan.py" e2e "$T/r" > "$T/out"; rc=$?
+check "e2e: each file covered, plans and README free" '[ $rc -eq 0 ] && [ ! -s "$T/out" ]'
+echo x > "$T/r/lone.py"
+python3 -I "$HERE/scan.py" e2e "$T/r" > "$T/out"; rc=$?
+check "e2e: a file no Covers names stops, by name" '[ $rc -ne 0 ] && grep -q "^lone.py: .*(no_e2e)" "$T/out"'
+rm "$T/r/lone.py"; printf 'tools/t.sh\nplans/x/0-index.md\n' > "$T/changed"
+python3 -I "$HERE/scan.py" e2e-for "$T/r" "$T/changed" > "$T/out"
+check "e2e-for: names the test that covers a change" '[ "$(cat "$T/out")" = tests/e2e/a/one.md ]'
+g() { git -C "$T/r" "$@"; }
+g init -q; g -c user.name=t -c user.email=t@t add -A; g -c user.name=t -c user.email=t@t commit -qm base; g branch -q base
+echo y >> "$T/r/tools/t.sh"; g add -A; g -c user.name=t -c user.email=t@t commit -qm change
+bash "$S" release "$T/r" base > "$T/out"; rc=$?
+check "release: a PR with no new changelog stops" '[ $rc -ne 0 ] && grep -q "no_changelog" "$T/out"'
+mkdir -p "$T/r/changelogs"; printf '# Nightly\n\n## Files\n\nM tools/t.sh\n' > "$T/r/changelogs/2026-01-01-0000.md"
+g add -A; g -c user.name=t -c user.email=t@t commit -qm log1
+bash "$S" release "$T/r" base > "$T/out"; rc=$?
+check "release: a changelog with no E2E tests part stops" '[ $rc -ne 0 ] && grep -q "no E2E tests part" "$T/out"'
+printf '\n## E2E tests\n\nNone.\n' >> "$T/r/changelogs/2026-01-01-0000.md"; g -c user.name=t -c user.email=t@t commit -qam log2
+bash "$S" release "$T/r" base > "$T/out"; rc=$?
+check "release: an E2E tests part that skips a covering test stops" '[ $rc -ne 0 ] && grep -q "does not name tests/e2e/a/one.md" "$T/out"'
+sed -i.bak 's|^None.$|- tests/e2e/a/one.md|' "$T/r/changelogs/2026-01-01-0000.md"; rm "$T/r/changelogs/"*.bak; g -c user.name=t -c user.email=t@t commit -qam log3
+bash "$S" release "$T/r" base > "$T/out"; rc=$?
+check "release: changelog and e2e tests in place pass" '[ $rc -eq 0 ]'
+
 echo "$PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]
