@@ -317,7 +317,7 @@ module worktreeEndLifecycle {
 
   // GitHub refused the merge (a conflict, a failed check, a branch behind its
   // base). The session stays in the worktree: no ExitWorktree call.
-  /// R3: GitHub refused the merge. The session stays in the worktree.
+  /// R10: GitHub refused the merge. The session stays in the worktree.
   action mergeNowBlocked = all {
     phase == "merge_now_check",
     phase' = "merge_blocked",
@@ -328,7 +328,7 @@ module worktreeEndLifecycle {
 
   // The user syncs onto the default branch and fixes it in the worktree. The new
   // commits are not pushed yet, so the next invocation starts over.
-  /// R3: The user fixes the worktree. The new commits are not pushed yet.
+  /// R10: The user fixes the worktree. The new commits are not pushed yet.
   action fixBlocked = all {
     phase == "merge_blocked",
     phase' = "start",
@@ -581,7 +581,7 @@ module worktreeEndLifecycle {
   val onDefaultRequiresExited = onDefault implies (kept or removed)
 
   // A merge that GitHub blocks never leaves the worktree.
-  /// R3: a blocked merge never leaves the worktree.
+  /// R10: a blocked merge never leaves the worktree.
   val blockedStaysInWorktree = (phase == "merge_blocked") implies not(kept or removed)
 
   // Removal does happen, on two success paths (remoteFoundMerged, chooseMergeEmpty). A
@@ -598,7 +598,7 @@ module worktreeEndLifecycle {
   run mergedRequiresInSyncTest = init.then(8.reps(_ => step)).expect(mergedRequiresInSync)
   /// R4: the invariant holds along 8 random moves.
   run onDefaultRequiresExitedTest = init.then(8.reps(_ => step)).expect(onDefaultRequiresExited)
-  /// R3: the invariant holds along 8 random moves.
+  /// R10: the invariant holds along 8 random moves.
   run blockedStaysInWorktreeTest = init.then(8.reps(_ => step)).expect(blockedStaysInWorktree)
 
   /// R8: the dirty-block ends with no ExitWorktree call.
@@ -770,7 +770,7 @@ module worktreeEndLifecycleBuggy {
 
   // GitHub refused the merge (a conflict, a failed check, a branch behind its
   // base). The session stays in the worktree: no ExitWorktree call.
-  /// R3: GitHub refused the merge. The session stays in the worktree.
+  /// R10: GitHub refused the merge. The session stays in the worktree.
   action mergeNowBlocked = all {
     phase == "merge_now_check",
     phase' = "merge_blocked",
@@ -781,7 +781,7 @@ module worktreeEndLifecycleBuggy {
 
   // The user syncs onto the default branch and fixes it in the worktree. The new
   // commits are not pushed yet, so the next invocation starts over.
-  /// R3: The user fixes the worktree. The new commits are not pushed yet.
+  /// R10: The user fixes the worktree. The new commits are not pushed yet.
   action fixBlocked = all {
     phase == "merge_blocked",
     phase' = "start",
@@ -971,7 +971,7 @@ module worktreeEndLifecycleBuggy {
     discardConfirmed' = discardConfirmed,
   }
 
-  /// R3: a wrong move on purpose: exit after a blocked merge.
+  /// R10: a wrong move on purpose: exit after a blocked merge.
   action buggyExitOnBlocked = all {
     phase == "merge_now_check",
     phase' = "merge_blocked",
@@ -1018,6 +1018,6 @@ module worktreeEndLifecycleBuggy {
   val mergedRequiresInSync = merged implies inSync
   /// R4: the primary checkout lands on the default branch only after ExitWorktree.
   val onDefaultRequiresExited = onDefault implies (kept or removed)
-  /// R3: a blocked merge never leaves the worktree.
+  /// R10: a blocked merge never leaves the worktree.
   val blockedStaysInWorktree = (phase == "merge_blocked") implies not(kept or removed)
 }

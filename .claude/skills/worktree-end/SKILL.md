@@ -51,7 +51,7 @@ If the status is `EMPTY`, do as Step 2. Otherwise run `S merge`.
 - `MERGED` → `ExitWorktree(remove, discard_changes: true)`.
 - `BLOCKED` or `FAILED` → **stay in the worktree. No ExitWorktree.** Tell the user why, with the PR URL:
   - `CONFLICTING` or `DIRTY`: a merge conflict. `BEHIND`: the default branch moved. `BLOCKED` or `UNSTABLE`: a check or a review.
-  - Offer to sync onto the default branch with `worktree-sync`, fix it, commit, and run this skill again.
+  - Offer to rebase onto `origin/<default>`, fix it, commit, and run this skill again.
 
 ## Step 4: Discard
 

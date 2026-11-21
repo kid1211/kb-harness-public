@@ -21,13 +21,14 @@
   // "skill a" and "hook a" mark a component of that kind.
   // A node's ord is where a link line first names it; the layout keeps that order.
   function parse(txt) {
-    const nodes = {}, groups = new Set(), edges = [];
+    const nodes = {}, groups = new Set(), edges = [], colorLines = [];
     let n = 0;
     const node = id => (nodes[id] ??= { id, label: id.replace(/_/g, " ") });
-    for (const raw of txt.split("\n")) {
+    for (const [i, raw] of txt.split("\n").entries()) {
       const l = raw.trim(); let m;
       if (!l || l.startsWith("#")) continue;
-      if ((m = l.match(/^(external|begin|end|fail|skill|hook)\s+(?!->)(.+)$/))) m[2].split(/\s+/).forEach(id => {
+      if (/^color\s+(?!\s|->)/.test(l)) colorLines.push([l, i + 1]); // read after every node and link is known
+      else if ((m = l.match(/^(external|begin|end|fail|skill|hook)\s+(?!->)(.+)$/))) m[2].split(/\s+/).forEach(id => {
         const k = m[1], nd = node(id);
         if (k === "external" || k === "skill" || k === "hook") nd.external = true;
         if (k !== "external") nd.kind = k;
@@ -43,6 +44,7 @@
       else if ((m = l.match(/^(\S+):\s+(.+)$/))) node(m[1]).desc = m[2]; // an ID may hold a colon, as p-req:grill
       else console.warn("draw-graph: unread line", l);
     }
+    for (const [l, at] of colorLines) applyColors(l, at, nodes, edges);
     // A state box (R26): its name, a rule, the component that runs it, then the components of the nodes
     // its links come in from and go out to: a node's run, or its name if it has none. What it does stays in the hover.
     const comps = id => nodes[id].run ? nodes[id].run.split(/,\s*/) : [id.replace(/_/g, " ").replace(/\?$/, "")];
@@ -55,6 +57,34 @@
     for (const [id, label] of Object.entries(labels)) Object.assign(nodes[id], { label, state: true });
     return { nodes: Object.values(nodes), groups: [...groups], edges };
   }
+
+  // A colour line: "color a text=tan fill=midnight" for a node, "color a -> b line=tan label=linen" for each link a to b.
+  // Palette names only (.claude/lib/palette/palette.css). Dark colours are fills only. Firebrick is for errors only.
+  const LIGHT = { tan: "#D2B48C", linen: "#FAF0E6", "light-blue": "#A8D8EA", white: "#FFFFFF" };
+  const LINE = { ...LIGHT, "slate-blue": "#4A6A88" };
+  const FILL = { ...LINE, navy: "#001F3F", midnight: "#191970", charcoal: "#363636", olive: "#6B7158", fern: "#4F7942" };
+  const PARTS = { node: { text: LIGHT, fill: FILL }, link: { line: LINE, label: LIGHT } };
+  function applyColors(l, at, nodes, edges) {
+    const bad = why => { throw new Error(`draw-graph: ${why}, in line ${at} "${l}"`); };
+    const own = (o, k) => Object.hasOwn(o, k) ? o[k] : undefined; // no inherited names, such as toString
+    const m = l.match(/^color\s+(\S+)(?:\s*->\s*(\S+))?((?:\s+\S+=\S+)+)$/) || bad("write color <node> text=<name> fill=<name>, or color <a> -> <b> line=<name> label=<name>");
+    const [, a, b, pairs] = m, kind = b ? "link" : "node";
+    if (a === b) bad("a loop takes no colour");
+    const targets = b ? edges.filter(e => e.source === a && e.target === b) : own(nodes, a) ? [nodes[a]] : [];
+    if (!targets.length) bad(b ? `no link ${a} -> ${b}` : `no node ${a}`);
+    const colors = {};
+    for (const p of pairs.trim().split(/\s+/)) {
+      const [key, name, ...rest] = p.split("=");
+      if (rest.length) bad(`${name}=${rest.join("=")} is no palette colour`);
+      const fit = own(PARTS[kind], key) || bad(`a ${kind} has no part ${key}: use ${Object.keys(PARTS[kind]).join(" or ")}`);
+      colors[key] = own(fit, name) || bad(own(FILL, name) ? `${name} is a fill colour, too dark for ${key}: use ${Object.keys(fit).join(", ")}`
+        : `${name} is no palette colour for ${key}: use ${Object.keys(fit).join(", ")}`);
+    }
+    for (const t of targets) t.colors = { ...t.colors, ...colors };
+  }
+
+  // { text, fill } -> { c_text, c_fill }: plain data fields, so a style selector can read them.
+  const flat = c => Object.fromEntries(Object.entries(c || {}).map(([k, v]) => ["c_" + k, v]));
 
   const STYLE = `
 .dg { position: relative; width: 100%; }
@@ -191,8 +221,8 @@
     const cy = cytoscape({
       container: box, userZoomingEnabled: false, // the wheel scrolls the page; pinch or Ctrl+wheel zooms (below)
       elements: [...g.groups.map(id => ({ data: { id, label: id.replace(/_/g, " ") } })),
-        ...g.nodes.map(n => ({ data: { ...n }, classes: [urls[n.id] && "link", n.external && "external", n.state && "state", n.id.endsWith("?") && "decision", ["begin", "end", "fail"].includes(n.kind) ? "terminal " + n.kind : n.kind, n.kind && "icon"].filter(Boolean).join(" ") })),
-        ...g.edges.map((e, i) => ({ data: { ...e, id: "e" + i } })).filter(e => e.data.source !== e.data.target)],
+        ...g.nodes.map(n => ({ data: { ...n, ...flat(n.colors) }, classes: [urls[n.id] && "link", n.external && "external", n.state && "state", n.id.endsWith("?") && "decision", ["begin", "end", "fail"].includes(n.kind) ? "terminal " + n.kind : n.kind, n.kind && "icon"].filter(Boolean).join(" ") })),
+        ...g.edges.map((e, i) => ({ data: { ...e, ...flat(e.colors), id: "e" + i } })).filter(e => e.data.source !== e.data.target)],
       layout: { name: "preset" },
       style: [
         { selector: "node", style: { label: "data(label)", shape: "round-rectangle", width: "label", height: 26, padding: 7,
@@ -223,6 +253,11 @@
           "text-background-color": C.bg, "text-background-opacity": 1, "text-background-padding": 1 } },
         // A loop inside a node (R27) curls out of its right side, with its text beyond the curl.
         { selector: "node.loopnote", style: { "background-opacity": 0, "border-width": 0, "font-size": FONT.edge, width: "label", height: "label", padding: 2 } },
+        // A colour line wins over the colour of a node's or link's kind. The hover still dims and lights it.
+        { selector: "node[c_text]", style: { color: "data(c_text)" } },
+        { selector: "node[c_fill]", style: { "background-color": "data(c_fill)" } },
+        { selector: "edge[c_line]", style: { "line-color": "data(c_line)", "target-arrow-color": "data(c_line)" } },
+        { selector: "edge[c_label]", style: { color: "data(c_label)" } },
         { selector: ".dim", style: { opacity: .15 } },
         { selector: "edge.hl", style: { "line-color": C.hl, "target-arrow-color": C.hl, width: 2.5 } },
       ],

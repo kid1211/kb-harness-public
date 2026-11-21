@@ -3,7 +3,7 @@
 ## Requirements
 
 - ✅ **R19. Allow a worktree:** [implement] in a linked worktree of the harness, such as one under `.claude/worktrees/`, the commands that R23 refuses pass. Each `git worktree add` passes in each checkout, since it makes the branch together with its worktree. That covers `-b`, `-B`, and a name that only a remote has. *(the user, 2026-10-29)*
-  - The commands of the `worktree-end` and `worktree-sync` skills pass. The two skills use no `git switch`, so R13 does not touch them.
+  - The commands of the `worktree-end` skill pass. The skill uses no `git switch`, so R13 does not touch them.
   - `.claude/CLAUDE.md` says that Claude makes a harness branch only with a worktree.
   - Serves: F2
 - 🚀 **R7. How to set it up:** [research] answer the Research questions. The `!` part of Research question 1 waits for a live test in `p-build`. A good answer names a build that refuses each form of R23 and R13, and lets each form of R21, R17, R18 and R19 pass, with the repo that R24 finds. R7 holds when `p-research` answers each other Research question and marks Research question 1 deferred. *(the user, 2026-10-29)*
