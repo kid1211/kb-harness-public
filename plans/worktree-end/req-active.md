@@ -6,8 +6,8 @@
   - Serves: F2
 - ✅ **R2. Merge goes through a PR:** a merge pushes the branch and uses a PR on `origin`. There is no local merge. Invariants `remoteRemovalRequiresPush` and `mergedRequiresInSync`.
   - Serves: F1
-- ✅ **R3. A blocked merge stays put:** if GitHub refuses a merge-now, the session stays in the worktree. It says why, and offers to sync with `worktree-sync`, fix, push and merge again. Invariant `blockedStaysInWorktree`.
-  - Serves: F1
+- ⚪ **R10. A blocked merge stays put:** [implement] if GitHub refuses a merge-now, the session stays in the worktree. It says why, and offers to rebase onto `origin/<default>` by hand, fix, push and merge again. Invariant `blockedStaysInWorktree`.
+  - Serves: F1, F4
 - ✅ **R4. Land on the default branch:** after ExitWorktree, a clean primary checkout goes to the default branch. Invariant `onDefaultRequiresExited`.
   - Serves: F1
 - ✅ **R5. Scripts, not prose:** `scripts/wt-end.sh` runs every git and gh step and prints one line with a verdict word. Git and gh output shows only on failure.
@@ -20,3 +20,5 @@
   - Serves: F1
 - ✅ **R9. Ask for a retro:** [implement] after each ExitWorktree call, the skill asks the user "Run a session retro?", yes or no. A yes starts the `session-retro` run in the background. A no starts nothing. The retro is outside this model, so no invariant covers it.
   - Serves: F3
+- ⚪ **R11. No worktree-sync:** [implement] the skill `worktree-sync` and its end-to-end cases are gone. No release list, skill, test or `CLAUDE.md` of the harness names it. Records of the past, such as a changelog, an `alt-` file or a test fixture, keep their text. The worktree video of `plans/release-video/` changes in a round of its own.
+  - Serves: F4

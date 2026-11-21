@@ -101,7 +101,7 @@ Merge now commits what is dirty, pushes the branch and merges the PR in one run 
 
 ### merge_blocked
 
-GitHub refused the merge. The session stays in the worktree. It says why, and offers `worktree-sync`, a fix, a push and another merge (`fixBlocked`).
+GitHub refused the merge. The session stays in the worktree. It says why, and offers a rebase onto `origin/<default>` by hand, a fix, a push and another merge (`fixBlocked`).
 
 - **Invariants:** `blockedStaysInWorktree`.
 - **Expected output:** the reason GitHub gave. Neither `kept` nor `removed` is set.
@@ -151,6 +151,7 @@ The level builds the skill `.claude/skills/worktree-end/` and its tests in `test
 - **Invariants:** `removedImpliesPreserved`, `remoteRemovalRequiresPush`, `mergedRequiresInSync`, `onDefaultRequiresExited` and `blockedStaysInWorktree`. Each has a run that checks it along 8 random moves: `removedImpliesPreservedTest`, `remoteRemovalRequiresPushTest`, `mergedRequiresInSyncTest`, `onDefaultRequiresExitedTest`, `blockedStaysInWorktreeTest`. `neverRemoved` is the negative control.
 - **Model tests:** `blockedDirtyTest`, `switchedTest`, `emptyRemovedTest`, `remoteRemovedTest`, `forceRemovedTest`, `discardedTest`.
 - **Not checked by a script:** the typed word `delete`, a rejected question, and the commit of dirty files by Merge now. Only a session shows them. The skill states them.
+- **Removal check:** `tests/skills/worktree-end/test-no-worktree-sync.sh` fails if the skill folder or its end-to-end cases exist, or if a live file names `worktree-sync`. It skips the records of the past: `alt-` files, changelogs, the fixtures of `spec`, and `plans/release-video/`, which changes in its own round.
 - **No file is left** by any state. The worktree and its branch are the state, and `check-state.sh` reads them.
 
 ## Coverage
@@ -159,13 +160,14 @@ The level builds the skill `.claude/skills/worktree-end/` and its tests in `test
 |---|---|
 | R1 | `buggyRemoveWithoutMerge`, `chooseMergeEmpty`, `chooseMergeEmptyOwnershipBlocked`, `confirmSwitch`, `declineSwitch`, `done`, `emptyRemovedTest`, `intentSwitch`, `removedImpliesPreserved`, `removedImpliesPreservedTest`, `switchedTest` |
 | R2 | `buggyMergeWhileDiverged`, `buggyMergeWithoutPush`, `chooseMergeNonEmpty`, `chooseMergeNow`, `driftWhileWaiting`, `mergeNowAccepted`, `mergedRequiresInSync`, `mergedRequiresInSyncTest`, `pushRemote`, `pushUpdate`, `remoteFoundMerged`, `remoteFoundMergedOwnershipBlocked`, `remoteFoundNotMerged`, `remoteRemovalRequiresPush`, `remoteRemovalRequiresPushTest`, `remoteRemovedTest`, `retryRemoteCheck` |
-| R3 | `blockedStaysInWorktree`, `blockedStaysInWorktreeTest`, `buggyExitOnBlocked`, `fixBlocked`, `mergeNowBlocked` |
+| R10 | `blockedStaysInWorktree`, `blockedStaysInWorktreeTest`, `buggyExitOnBlocked`, `fixBlocked`, `mergeNowBlocked` |
 | R4 | `buggyLandWithoutExit`, `landOnDefault`, `onDefaultRequiresExited`, `onDefaultRequiresExitedTest` |
 | R5 | `.claude/skills/worktree-end/scripts/wt-end.sh` prints one line with a verdict word. Not in the model: `test-wt-end.sh` checks it |
 | R6 | The skill folder holds `SKILL.md` and `scripts/`. Not in the model: a layout rule of the build |
 | R7 | `confirmDiscard`, `confirmDiscardOwnershipBlocked`, `confirmForceRemove`, `declineDiscard`, `discardedTest`, `forceRemovedTest`, `intentDiscard`. The typed word itself is not in the model: only a session shows it, and the skill states it |
 | R8 | `blockDirty`, `blockedDirtyTest`. The model ends at blocked_dirty, so no invariant covers the commit that Merge now makes |
 | R9 | The retro question comes after ExitWorktree, outside this model. The skill states it |
+| R11 | Not in the model: no state names a skill. `tests/skills/worktree-end/test-no-worktree-sync.sh` checks that no live file names `worktree-sync` |
 | blocked_dirty | `blockedDirtyTest` |
 | switched | `switchedTest` |
 | empty_removed | `emptyRemovedTest` |

@@ -5,7 +5,7 @@
 A Claude Code hook stops Claude from making a git branch in the main checkout of the harness. A KB passes, since the hook judges only the harness for that rule (R18). Apart from the limits that R23, R21, R24 and R17 name, a worktree is then the only way Claude makes a harness branch. Claude uses `git checkout`, never `git switch`. Draft, 8 requirements, 0 components.
 
 Builds: `.claude/hooks/branch-guard.sh`, `.claude/settings.json` (the `PreToolUse` line of branch-guard), `tests/global/hooks/test-branch-guard.sh`, `.claude/CLAUDE.md` (the line "Claude makes a harness branch only with a worktree"), the line of the suite in the Tests list of `CLAUDE.md`
-Uses: the `.claude/skills` symlink of `scripts/link-kb.sh`, the `worktree-end` and `worktree-sync` skills
+Uses: the `.claude/skills` symlink of `scripts/link-kb.sh`, the `worktree-end` skill
 
 ## Architecture
 

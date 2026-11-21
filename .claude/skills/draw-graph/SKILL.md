@@ -39,7 +39,20 @@ worker -> db
 | `skill a` | `a` is a skill: a light blue border and a box icon |
 | `hook a` | `a` is a hook, which plugs into an event: a tan border and a plug icon |
 | `external a b` | `a` and `b` are components of another kind, such as a tool or a plan's component |
+| `color a text=tan fill=midnight` | gives `a` its own text colour, fill colour, or both. They win over the colour of its kind |
+| `color a -> b line=tan label=linen` | gives each link from `a` to `b` its own line colour, text colour, or both |
 | `# text` | a comment |
+
+A colour is a palette name, not a hex value. If a name, part or node is
+not in the table or the graph, the graph shows an error, and the check fails it.
+
+| Part | Names |
+|---|---|
+| `text`, `label` | `tan`, `linen`, `light-blue`, `white` |
+| `line` | those, and `slate-blue` |
+| `fill` | those, and the dark fills `navy`, `midnight`, `charcoal`, `olive`, `fern` |
+
+`firebrick` is for errors only, so no colour line can use it.
 
 - A node ID is one word with no spaces. The page shows `_` as a space, so
   `check_models` shows as "check models". Put the rest of a long name in
