@@ -614,6 +614,10 @@ def hook(event, data, md=None):
 def test():
     import tempfile  # 14 ms to import, so only the tests pay for it
     md = rules_text()
+    if "### Terms" not in md:  # a clone with no .claude/CLAUDE.md: the term tests use this table
+        md += ("\n### Terms\n\n| Term | Means | Never call it | Do not call it, in this sense |\n|---|---|---|---|\n"
+               "| KB | a knowledge-base repo | vault, wiki | |\n| skill | a folder with a SKILL.md | plugin | command, tool |\n"
+               "| model | a .qnt file | | spec |\n| invariant | a val | | property, rule |\n| commit / push | a commit / a push | | save, publish |\n")
     fails = []
 
     def expect(name, cond):
