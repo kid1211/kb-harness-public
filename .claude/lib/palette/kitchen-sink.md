@@ -126,6 +126,25 @@ For the timeline of the `plan-rounds` dashboard: one background colour per lette
 | ☑ | `M` | manual commit | `#FAF0E6` | `#001F3F` | <span style="display:inline-block;width:1.6em;height:1.4em;line-height:1.4em;text-align:center;background:#FAF0E6;color:#001F3F;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">M</span> |
 | ☑ | `.` | noop | `#363636` | `#75715E` | <span style="display:inline-block;width:1.6em;height:1.4em;line-height:1.4em;text-align:center;background:#363636;color:#75715E;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">.</span> |
 
+## 4e. KB areas in the map and the flow (for the user to review)
+
+- The KB map and the flow page fill each source node and each staging node with the colour of its area.
+- Both colours come from the palette above. `kb-types.py` added them on 2026-11-20, and the user picks.
+
+| Keep | Area | Colour | Swatch |
+|---|---|---|---|
+| ☐ | source | olive `#6B7158` | <span style="display:inline-block;width:3.2em;height:1.3em;background:#6B7158;border-radius:4px;border:1px solid #555;vertical-align:middle"></span> |
+| ☐ | staging | slate blue `#4A6A88` | <span style="display:inline-block;width:3.2em;height:1.3em;background:#4A6A88;border-radius:4px;border:1px solid #555;vertical-align:middle"></span> |
+| ☐ | consolidated | no fill: the step colour of the graph | |
+
+Text colour of each area, in place of a fill, for a graph's `color <node> text=<name>` line. Added 2026-11-20 for the user to review.
+
+| Keep | Area | Text colour | Swatch |
+|---|---|---|---|
+| ☐ | source | tan `#D2B48C` | <span style="display:inline-block;padding:0 .4em;background:#1e1e1e;color:#D2B48C;font-weight:600;border-radius:3px">receipt</span> |
+| ☐ | staging | light blue `#A8D8EA` | <span style="display:inline-block;padding:0 .4em;background:#1e1e1e;color:#A8D8EA;font-weight:600;border-radius:3px">version</span> |
+| ☐ | consolidated | the default text colour of the graph | |
+
 ## 4d. Mail block borders (for the user to review)
 
 The daily report mail has a white background in Gmail. Each block has a left border from the action line of the report. All four colours are in the palette above. Added 2026-11-03 by the `trade-daily-report` mail. The user can change them. The price line and the action line of a block have a pale fill of the same colour: `#E3EEDF` (fern), `#F3EBDD` (tan), `#F4DEDE` (firebrick), `#E4EAF0` (slate blue). These four fills are new, made by lightening the palette colours. The user picks.
@@ -149,6 +168,8 @@ Lucide-style strokes in one colour, used before a node's name. The user picked t
 | ☑ | box (skill) | <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> | <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg> |
 | ☑ | plug (hook) | <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D2B48C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg> | <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#D2B48C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg> |
 | ☑ | chevron (a part that folds open, points down when open, kept 2026-11-16) | <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg> | <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg> |
+| ☐ | chef hat (proposed 2026-11-21, for a recipe node of the food KB model) | <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></svg> | <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></svg> |
+| ☐ | cooking pot (proposed 2026-11-21, for a recipe node of the food KB model) | <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/></svg> | <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#A8D8EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/></svg> |
 
 ## 6. Emoji
 

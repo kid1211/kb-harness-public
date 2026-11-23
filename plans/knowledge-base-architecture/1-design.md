@@ -172,6 +172,7 @@ The build is a skill, `kb`, with a script and hooks.
 | R27 | not in the model: a list of folders in the hooks, with no state. `kb-check.py` tests the list |
 | R28 | not in the model: the `kb` skill and the other skills name the layout in prose. A skill test checks the headings |
 | R29 | not in the model: where a run folder sits is a name rule of `kb-check.py file`. `p-research` writes there |
+| R30 | not in the model: the component `kb-object-model` holds the types, with its own model and checks. The Write step of the `kb` skill writes them |
 | raised | `conflictTest` |
 | refused | `noYesTest` |
 | flagged | `bashTest` |

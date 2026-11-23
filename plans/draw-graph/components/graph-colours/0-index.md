@@ -24,6 +24,10 @@ The user's want, 2026-11-20: "allos coloring the text color or area color or the
 - **F3.** A colour is a name from the palette, such as `tan` or `light-blue`, never a hex value. A dark fill colour, such as `midnight` or `navy`, is for a node's fill only, since text and lines in it are too dark to read.
 - **F4.** A colour name that is not in the palette, or a dark colour on text or a line, makes the graph show an error, so the graph check fails it. `firebrick` is not a choice: red is for errors only.
 - **F5.** A node or link with no colour line looks as it does now. The colour of a node's kind, such as a component or a failure, gives way to the colour line.
+- **F6.** A link to or from an external node, such as a component, a skill or a hook, is a dotted line. *(the user, 2026-11-21: "ask antgafu use dottled line", then "all the external use dotted line")*
+  Decision: keep
+  Built: 0 of 0
+  What Claude thinks the user means: the round trip between nutrition goal and ask-antafu, and the link out of "file: recipe sources", are dotted. A link between two types stays solid.
 
 - ✅ **R1. Node colours:** [implement] A line `color <node> text=<name> fill=<name>` gives one node its text colour, its fill colour, or both. They win over the colour of its kind.
 - ✅ **R2. Link colours:** [implement] A line `color <a> -> <b> line=<name> label=<name>` gives each link from `a` to `b` its line and arrow colour, its text colour, or both. A loop takes no colour.

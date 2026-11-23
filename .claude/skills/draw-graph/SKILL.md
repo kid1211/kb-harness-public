@@ -28,8 +28,9 @@ worker -> db
 | Line | Means |
 |---|---|
 | `a -> b, c` | links from `a` to `b` and to `c`. A node needs no other line. |
-| `b [text]` | after a target: the text on that link |
-| `a: text` | the description shown when the mouse is on `a` |
+| `b [text]` | after a target: the text on that link. It sits in the line, which breaks around it, and wraps past the width of `get-grocery-list` |
+| `a: text` | the description shown when the mouse is on `a`. Each more `a:` line adds a line, such as a `- ` bullet |
+| `about [text]: note` | a note shown when the mouse is on a link whose text is `text`. Several lines for one text show in order |
 | `a.run: text` | makes `a` a state box: its name, a `----` rule, `run: [...]` the components that do the work, then `in: [...]` and `out: [...]`, the components of the nodes its links come in from and go out to: each node's `run`, or its name. An ID may hold a colon, as `spec:check?`, so a hover line needs a space after its colon. Its `a: text` stays the hover |
 | `a -> a [text]` | a loop inside `a`: an arrow out of its right side to the text, and back in. The text says what the loop does |
 | `[Group] a b` | puts `a` and `b` in a box named Group |
@@ -38,9 +39,12 @@ worker -> db
 | `fail a` | `a` is where the flow stops on a failure: a red pill with a circled cross |
 | `skill a` | `a` is a skill: a light blue border and a box icon |
 | `hook a` | `a` is a hook, which plugs into an event: a tan border and a plug icon |
-| `external a b` | `a` and `b` are components of another kind, such as a tool or a plan's component |
+| `external a b` | `a` and `b` are components of another kind, such as a tool or a plan's component. A link to or from a node on an `external`, `skill` or `hook` line is dotted |
 | `color a text=tan fill=midnight` | gives `a` its own text colour, fill colour, or both. They win over the colour of its kind |
 | `color a -> b line=tan label=linen` | gives each link from `a` to `b` its own line colour, text colour, or both |
+| `label a: text` | the node `a` and its filter button show `text` in place of its ID, so two nodes can show one name |
+| `filter` | a row of buttons under the graph, one per node, with All and None: a click selects or clears that node. |
+| `ring 0 a b` | draws the graph around a center: `a` and `b` on ring 0, the middle. A higher number is further out. A node with more links sits nearer the middle, and a node with no ring line goes outside the last ring. Each node is then a dot with its name under it, bigger with more links, and a link's text shows only on hover |
 | `# text` | a comment |
 
 A colour is a palette name, not a hex value. If a name, part or node is
@@ -54,9 +58,9 @@ not in the table or the graph, the graph shows an error, and the check fails it.
 
 `firebrick` is for errors only, so no colour line can use it.
 
-- A node ID is one word with no spaces. The page shows `_` as a space, so
-  `check_models` shows as "check models". Put the rest of a long name in
-  its description.
+- A node ID is up to 6 words joined by `_`, with no spaces. The page shows
+  `_` as a space, so `grocery_receipt` shows as "grocery receipt". A name of
+  7 words or more makes the graph check fail.
 - Put all links from one node on one line.
 - The layout flows left to right, in the order the link lines first name
   the nodes. Write links in flow order. A link back is drawn as a loop.
@@ -66,7 +70,7 @@ not in the table or the graph, the graph shows an error, and the check fails it.
 - A node whose ID ends with `?`, such as `fits?`, is a decision, drawn as
   a diamond. Give each link out its answer, such as [yes] and [no].
 - A flowchart has one `begin` node. Each node where the flow stops goes on
-  an `end` line if it went well, or a `fail` line if it did not. There are no other node shapes and no dashed links.
+  an `end` line if it went well, or a `fail` line if it did not. There are no other node shapes, and no other dotted or dashed links.
 - ELK places every node and box, so the text holds no positions.
 
 To show one graph on two pages, put it in its own `.md` file, such as

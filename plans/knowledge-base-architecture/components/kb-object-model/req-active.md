@@ -1,0 +1,54 @@
+# KB object model: detailed requirements
+
+## Requirements
+
+- ⚪ **R39. A type lists its fields:** [implement] A type lists the fields each of its objects has. Each field has a name, a kind and a mark of whether it must be there. The kinds are text, number, a score from 1 to 5, a date and a list. A link to another object is no field: it is a relationship of R36.
+  - Serves: F1
+- 🚀 **R3. The area stays in the name:** [implement] The area of an object, source, staging or consolidated, comes from its name, by R9 of the parent level. A type says which areas its objects may have. A `version` is staging only, and a `receipt` is source only. A type does not inherit the areas of its parent: each type declares its own.
+  - Serves: F1
+- ⚪ **R40. Links and inheritance first:** [implement] The relationships come first: R43, R5, R6 and R36, with their check in `kb-model/R15`. The fields of one object, R39 and R3, come after them, then the check of a whole domain and the picture. *(the user, 2026-11-20)*
+  - Serves: F1
+- 🚀 **R5. Made of:** [implement] A whole lists its parts, each by a link and the values it adds, such as grams of an item in a meal. The type declares the kind of each part value. A part stays its own object.
+  - Serves: F2
+- 🚀 **R6. Links to:** [implement] An object can point at another without holding it, such as an intake that points at the batch it came from. A link names a type, and the check finds the object it points at.
+  - Serves: F2
+- 🚀 **R7. Any depth:** [implement] The levels are KB, domain, collection and object. A field is a part of an object, not a level. A whole can be a part of a bigger whole, such as a meal in a plan, with no limit on depth. A whole that is part of itself, directly or through others, is an error. The picture of R35 adds all KBs as a top level, and shows the fields of a type as the level under its collection.
+  - Serves: F2
+- ⚪ **R43. A type can extend another:** [implement] As in OOP, a type can be a kind of another type, such as a meal that is a confirmed version. It gets each field of each type over it, and adds its own.
+  - Serves: F2
+- 🚀 **R12. Food is the test:** [implement] Before the move of `plans/food/components/food-layout/`, the check lists the pages of `pantry/foods/` and `recipes/` as untyped. After the move, those pages are typed, and the check passes on them, or names each page and type that breaks.
+  - Serves: F5
+- ✅ **R22. Miscellaneous:** [implement] In the map, each page of a domain that fits no type sits by itself under a `miscellaneous (<n>)` node of that domain, with its path. No folder node shows. *(the user, 2026-11-20)*
+  - Serves: F9
+- ✅ **R23. Key lines are fields:** [implement] The `- Key: value` lines of a typed page, before its first `##` heading, are fields of its type, as snake_case names. So a page keeps each value once.
+  - Serves: F9
+- ⚪ **R41. Areas in the map:** [implement] Under each domain, the map shows its three areas: `source (<n>)`, `staging (<n>)` and `consolidated (<n>)`. A staging page and a consolidated page reach one source page or more through their links, by `kb-model/R16`. The types and miscellaneous sit under consolidated. Source, staging and miscellaneous fold until a click opens them. A click on the focus backs out to its parent. A button flips the tree between vertical and horizontal. *(the user, 2026-11-20)*
+  - Serves: F9
+- ✅ **R26. The whole folder:** [implement] Each map page shows the whole tree of its own folder, every level down, and nothing over it. A click opens or closes a folded node. No other click changes the page. Reset folds each node again. The page has no Show all. *(the user, 2026-11-20)*
+  - Serves: F6
+- ⚪ **R29. A KB model:** [implement] Each KB has its whole object model in one Quint model, apart from the pages, with a drift check against its files. The component `components/kb-model/` gives it. *(the user, 2026-11-20)*
+  - Serves: F10
+- ⚪ **R30. The model is the source:** [implement] A page says its own type in a `type:` field of its frontmatter. The map, the flow and `kb-types.py draw` read the types, fields and relationships from the JSON of the KB model, by `kb-model/R18`. A page with no `type:` is untyped. *(the user, 2026-11-20)*
+  - Serves: F7, F10
+- ⚪ **R31. A page next to each CLAUDE.md:** [implement] `kb-types.py map` writes `kb-map.html` next to the root `CLAUDE.md` of each KB and next to the `CLAUDE.md` of each domain. Each page shows the whole tree of its own folder, as R26 says. The page only shows the tree: the data stays in the KB model and the pages.
+  - Serves: F8
+- ⚪ **R32. Object types in the flow:** [implement] The flow and the map name each node by its object type, with its count, not by a path. Each file gets its type by `kb-model/R5`. The paths show only on hover.
+  - Serves: F9, F10
+- ⚪ **R33. A file gets its type:** [implement] Each KB page or file is one object, and it gets its type by `kb-model/R5`. *(the user, 2026-11-20)*
+  - Serves: F1, F10
+- ⚪ **R34. The picture draws the model:** [implement] The flow page and `kb-types.py draw` draw the KB model as OOP classes, with ```` ```graph ```` blocks. Each type is a node with its fields, and the links are "is a", "made of" and "links to". VS Code's preview draws it. *(the user, 2026-11-20)*
+  - Serves: F4, F10
+- ⚪ **R35. One tree of every KB:** [implement] The picture reads each KB on one list of KB roots that the `kb` skill keeps, such as `personal` and `eventPNL`. It reads each domain, area, type and field into one tree, from the KB model and the folders. A KB with no model shows each folder of a domain, a nested folder by its path. *(the user, 2026-11-20)*
+  - Serves: F6, F10
+- ⚪ **R36. Links stay in the page:** [implement] The KB model says which type is a kind of which, and which types a type may be part of, be made of or link to. A page names the objects it relates to by links in its frontmatter: `part_of:`, `made_of:` and `links_to:`. These keys and `type:` are no fields, so the drift check does not need a public mark for them.
+  - Serves: F2, F10
+- ⚪ **R37. The flow:** [implement] Next to each domain `CLAUDE.md`, `kb-types.py map` writes `kb-flow.md`, a graph block in the style of a pipeline graph: source types, then staging types, then consolidated types and miscellaneous, left to right. A link counts the pages that cite the node it comes from. Fields show only on hover. *(the user, 2026-11-20)*
+  - Serves: F9, F10
+- ⚪ **R38. Colour by area:** [implement] The flow and the map fill each source node and each staging node with the colour of its area, from the kitchen sink. *(the user, 2026-11-20)*
+  - Serves: F9
+- ⚪ **R44. Skills read the model:** [implement] Each skill that reads or writes a KB, such as `read-from-kb` and the food skills, reads the `kb-model.qnt` of that KB first, by the `types` JSON of `kb-model.py`. It finds each type and its folder there, and names no KB path of its own. A check fails a skill that names a KB folder that the model holds. *(the user, 2026-11-20)*
+  - Serves: F11
+- ⚪ **R45. The personal model:** [implement] The component `personal-model` gives the `kb-model.qnt` of the `personal` KB, written from `kb-structure.md` in that KB. *(the user, 2026-11-20)*
+  - Serves: F10
+- ⚪ **R48. The data model skill:** [implement] The component `data-model-skill` gives the skill that designs the data model of each domain with the user, and draws it as a page. *(the user, 2026-11-20)*
+  - Serves: F12, F11

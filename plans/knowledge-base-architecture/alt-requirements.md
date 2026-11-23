@@ -95,3 +95,4 @@
 **Requirement:** One move brings today's KB files into this layout. It renames each file together with its iCloud target, and fixes each link to it. The user sees a dry run first, and nothing moves without their yes. No page counts as confirmed until the user confirms it.
 
 **Why it is not chosen:** The user said a move of every file is too much. The hooks start on a few folders and grow instead. Replaced by R27. Dropped 2026-10-24.
+- **Grill of R30, 2026-11-20.** The detail check flagged the field names and scripts. They belong to the component `kb-object-model`, so R30 now names only the type and the relationships.
