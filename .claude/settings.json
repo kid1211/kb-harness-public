@@ -90,6 +90,36 @@
             "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/project-map-check.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Write(*.md)",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/writing-check.py post"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(*.md)",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/writing-check.py post"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "MultiEdit(*.md)",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/writing-check.py post"
+          }
+        ]
       }
     ],
     "DirectoryAdded": [
@@ -118,6 +148,16 @@
           {
             "type": "command",
             "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/add-dir-context.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel 2>/dev/null || echo \"${CLAUDE_PROJECT_DIR:-$PWD}\")\"/.claude/hooks/writing-check.py stop"
           }
         ]
       }

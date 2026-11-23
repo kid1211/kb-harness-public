@@ -15,6 +15,11 @@ module graphColours {
     else if (part == "line") LIGHT.union(LINE_ONLY).contains(c)
     else LIGHT.contains(c)
 
+  /// F6: a link is dotted when it goes to or from an external node: a component, a skill or a hook.
+  pure def dotted(srcExternal: bool, dstExternal: bool): bool = srcExternal or dstExternal
+  /// F6: a link between two plain nodes stays solid, and one with an external end is dotted.
+  run dottedTest = all { assert(dotted(true, false) and dotted(false, true) and not(dotted(false, false))), init }
+
   var phase: str      // read, plain, applied, error
   var isColour: bool  // the line is a colour line
   var part: str       // text, fill (a node), line, label (a link)

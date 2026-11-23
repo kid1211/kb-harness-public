@@ -52,3 +52,33 @@ test("R3 and R4: a long chain shrinks, so it is too tall and its text too small"
 test("R3: a small wide graph that does not shrink passes", async () => {
   assert.deepEqual(await run("root -> a, b, c, d, e"), []);
 });
+
+// graph-edge-labels: a link's text sits on its link, and wraps past the width of "get-grocery-list".
+const labelOf = (text, src, dst) => page.evaluate(async ([text, src, dst]) => {
+  const old = document.getElementById("g"), box = old.cloneNode(false);
+  old.replaceWith(box);
+  const cy = await DrawGraph.draw(box, text), e = cy.edges(`[source="${src}"][target="${dst}"]`)[0];
+  const b = e.boundingBox({ includeNodes: false, includeEdges: false, includeLabels: true });
+  const pts = [e.sourceEndpoint(), ...(e.segmentPoints() || []), e.targetEndpoint()];
+  const c = { x: (b.x1 + b.x2) / 2, y: (b.y1 + b.y2) / 2 };
+  // The distance from the text's centre to the nearest segment of its link.
+  const dist = Math.min(...pts.slice(1).map((q, i) => { const p = pts[i], dx = q.x - p.x, dy = q.y - p.y;
+    const t = Math.max(0, Math.min(1, ((c.x - p.x) * dx + (c.y - p.y) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(p.x + t * dx - c.x, p.y + t * dy - c.y); }));
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.font = `${Math.round(parseFloat(getComputedStyle(box).fontSize))}px "Helvetica Neue", Helvetica, sans-serif`;
+  return { w: b.w, h: b.h, dist, max: ctx.measureText("get-grocery-list").width, check: DrawGraph.check(cy) };
+}, [text, src, dst]);
+
+test("graph-edge-labels inTheLine: a link's text sits on its link", async () => {
+  const r = await labelOf("a -> b [calls]\nb -> c", "a", "b");
+  assert.ok(r.dist < 2, `text centre is ${r.dist.toFixed(1)} px off its link`);
+});
+
+test("graph-edge-labels widthCapped, roomForText: a long link text wraps and the graph passes", async () => {
+  const r = await labelOf("plan -> list [reads the plan and writes the grocery list]\nlist -> shop", "plan", "list");
+  assert.ok(r.w <= r.max + 12, `text is ${r.w.toFixed(0)} px wide, max ${r.max.toFixed(0)}`);
+  assert.ok(r.h > 16 * 2, `text is ${r.h.toFixed(0)} px tall, so it did not wrap`);
+  assert.ok(r.dist < 2, `text centre is ${r.dist.toFixed(1)} px off its link`);
+  assert.deepEqual(r.check, []);
+});

@@ -1,0 +1,3 @@
+# The KB roots: one KB folder for each line. kb-types.py map reads it.
+~/second-brain/personal
+~/second-brain/eventPNL

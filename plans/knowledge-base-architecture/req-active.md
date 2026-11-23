@@ -28,3 +28,5 @@
   - Serves: F4
 - 🚀 **R29. Research runs in a staging folder:** [implement] a domain can hold a `staging/` folder, with one folder per research run, `staging/<YYYY-MM-DD>-<slug>/`. Each run folder holds the `.staging.md` pages of that run. It is the one case of a sub-folder for an area, for research only: it adds to R9 and R12. `p-research` writes there (`p-research` R236). The user reads and rates each answer there (`p-research` research R184). *(the user, 2026-10-24)*
   - Serves: F1
+- 🚀 **R30. Objects in the frontmatter:** [implement] A KB page that is a data object says its type and its relationships in its frontmatter. The `kb` skill writes them so, and the component `kb-object-model` reads them for its type check and its map. It adds to R24: the type check is a script of its own. *(the user, 2026-11-20)*
+  - Serves: F4

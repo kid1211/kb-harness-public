@@ -79,6 +79,7 @@ The node gets a `color`, `background-color` or both. The link gets a `line-color
 | F3 | `fits`, `shownFits`, `darkTextTest` |
 | F4 | `refuse`, `badIsError`, `noRedNoUnknown`, `firebrickTest`, `hexTest` |
 | F5 | `plain`, `plainKeepsKind`, `plainTest` |
+| F6 | `dotted`, `dottedTest`, and the `dotted` test of `parse.test.js` |
 | R1 | `apply`, `nodeTextTest`, `nodeFillTest`, `parse.test.js` "a colour line gives a node its text and fill" |
 | R2 | `apply`, `linkLineTest`, `linkLabelTest`, `parse.test.js`. The loop error is in the code only, since the model has no link ends |
 | R3 | `fits`, `shownFits`, `darkTextTest`, `hexTest`, `firebrickTest` |

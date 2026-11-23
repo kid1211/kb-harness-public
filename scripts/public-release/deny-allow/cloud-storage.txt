@@ -6,3 +6,8 @@ plans/knowledge-base-architecture/1-design.md
 plans/knowledge-base-architecture/architecture.md
 plans/knowledge-base-architecture/alt-design-decisions.md
 plans/knowledge-base-architecture/alt-requirements.md
+.claude/hooks/writing-check.py
+plans/global/components/hooks/components/writing-check/components/chart-suggest/1-design.md
+plans/global/components/hooks/components/writing-check/components/chart-suggest/alt-requirements.md
+plans/global/components/hooks/components/writing-check/components/chart-suggest/chartSuggest.qnt
+plans/global/components/hooks/components/writing-check/components/chart-suggest/req-active.md

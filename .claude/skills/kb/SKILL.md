@@ -43,11 +43,19 @@ Each topic folder, such as `member/colon-issue/`, holds its three areas side by 
    - write `TODO(P1): conflict with <page>#<heading>: <both values and their sources>` in the staging page,
    - tell the user, and propose `/op-fork-new-wt` to settle it,
    - do not edit the consolidated page.
+6. If a page is a data object, such as one food or one dish, put its `type:` in its frontmatter. Add `is_a:` for its parent type, and `part_of:`, `made_of:` and `links_to:` as relative links to the pages it relates to. Each other frontmatter key is a field of the object.
+7. After a write that adds or changes a `type:` or a relationship, run `/kb map`, so each map page shows it.
 
 ## Commands
 
 - `/kb check`: run `C all <kb>`. Report each line. The last lines list consolidated pages with uncommitted changes: ask the user to look at each.
 - `/kb todo`: run `C todo <kb>`. Show the list, P1 first.
+- `/kb types <domain>`: run `python3 -I .claude/skills/kb/scripts/kb-types.py check <domain>`. It tests each page against the `## Types` table of the domain's `CLAUDE.md`. Report each break line. An untyped page is listed, not a break.
+- `/kb draw <domain>`: run `python3 -I .claude/skills/kb/scripts/kb-types.py draw <domain>`. It prints the types as one graph block of OOP classes, for the picture page next to the KB's root `CLAUDE.md`. With no table, it reads the types from the pages: `type:`, `is_a:`, `part_of:`, `made_of:` and `links_to:` in their frontmatter.
+- `/kb map`: run `python3 -I .claude/skills/kb/scripts/kb-types.py map`. It reads each KB of `assets/kb-roots.txt` and writes `kb-map.html` next to the root `CLAUDE.md` of each and next to the `CLAUDE.md` of each domain, each page opened on its own folder, with the page script `assets/kb-map.js`. Each page opens on its own KB.
+  - Each page shows its whole folder. A click opens or closes a folded node, such as miscellaneous. Reset and a vertical or horizontal flip sit at the top right.
+  - Next to each domain `CLAUDE.md`, it also writes `kb-flow.md`. VS Code's preview draws it, from source to staging to the types.
+  - `kb-types.py flow <domain>` prints that flow alone.
 - `/kb recheck <topic>`: start a fresh agent. Give it the topic folder's consolidated pages, its staging pages, and each source newer than a page's `confirmed` date. Ask it for each fact that disagrees, with both values and their sources. Write a `TODO(P1)` mark per conflict into the topic's staging page, then tell the user.
 
 ## Hooks

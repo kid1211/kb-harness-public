@@ -1,7 +1,7 @@
 // Run: node --test .claude/lib/draw-graph/tests/parse.test.js
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { parse, draw } = require("../draw-graph.js");
+const { parse, draw, ringPlace, dotSize } = require("../draw-graph.js");
 
 function quiet(fn) {
   const warn = [], old = console.warn;
@@ -16,6 +16,58 @@ test("begin, end, skill and hook lines mark a node's kind", () => {
   assert.deepEqual([by.a.label, by.s.label], ["a", "s"]);
   assert.deepEqual([by.s.external, by.h.external, by.a.external], [true, true, undefined]);
   assert.deepEqual(parse("end -> b").edges.map(e => [e.source, e.target]), [["end", "b"]]);
+});
+
+// graph-center-layout noRingsLayered: catches a ring line that sets no ring, or a ring on a graph with none.
+test("ring: a ring line sets the ring of each node it names", () => {
+  const by = Object.fromEntries(parse("ring 0 a\nring 1 b c\na -> b, c\nd -> a").nodes.map(n => [n.id, n.ring]));
+  assert.deepEqual(by, { a: 0, b: 1, c: 1, d: undefined });
+  assert.ok(parse("a -> b").nodes.every(n => n.ring === undefined));
+});
+
+// graph-center-layout ringsInOrder, moreLinksNearer: catches an outer ring nearer the center than an inner one,
+// a node with more links further out in its ring, or two node boxes on top of each other.
+test("ringPlace: rings in order, more links nearer, no overlap", () => {
+  const box = (id, ring) => ({ id, ring, w: 120, h: 34 });
+  const nodes = [box("hub", 0), box("x", 1), box("y", 1), box("z", 1), box("lone", 1), box("r1", 2), box("r2", 2), box("ext", undefined)];
+  const edges = [["x", "hub"], ["y", "hub"], ["x", "y"], ["x", "z"], ["r1", "x"], ["r2", "y"], ["ext", "x"], ["x", "hub"]];
+  const p = ringPlace(nodes, edges), r = id => Math.hypot(p[id].x, p[id].y);
+  const ring = k => nodes.filter(n => (n.ring ?? 3) === k).map(n => r(n.id));
+  for (const k of [0, 1, 2]) assert.ok(Math.max(...ring(k)) < Math.min(...ring(k + 1)), `ring ${k} inside ring ${k + 1}`);
+  assert.ok(r("x") < r("y") && r("y") < r("lone"), "more links, nearer the center");
+  for (const a of nodes) for (const b of nodes) if (a.id < b.id)
+    assert.ok(Math.abs(p[a.id].x - p[b.id].x) >= 120 || Math.abs(p[a.id].y - p[b.id].y) >= 34, `${a.id} and ${b.id} overlap`);
+});
+
+// graph-center-layout F2: catches a ring that spreads its nodes evenly, so a node lands far from the one it links to.
+test("ringPlace: a node sits next to the node it links to, not an even share away", () => {
+  const box = (id, ring) => ({ id, ring, w: 20, h: 20 });
+  const nodes = [box("hub", 0), box("a", 1), box("b", 1), box("c", 1), box("d", 1)];
+  const p = ringPlace(nodes, [["a", "hub"], ["b", "hub"], ["c", "hub"], ["d", "a"]]);
+  const ang = id => Math.atan2(p[id].y, p[id].x), gap = Math.abs(((ang("d") - ang("a")) % (2 * Math.PI) + 3 * Math.PI) % (2 * Math.PI) - Math.PI);
+  assert.ok(gap < Math.PI / 3, `d is ${(gap * 180 / Math.PI).toFixed(0)} degrees from a`);
+});
+
+// graph-colours F6: catches an external link drawn solid, or a link between two plain nodes drawn dotted.
+test("dotted: a link to or from an external node", () => {
+  const g = parse("external x\nskill s\na -> x, b, s\ns -> a");
+  assert.deepEqual(g.edges.map(e => [e.source, e.target, !!e.dotted]), [["a", "x", true], ["a", "b", false], ["a", "s", true], ["s", "a", true]]);
+});
+
+test("a fill line gives its nodes a colour, and a bad colour warns", () => {
+  const g = parse("fill #6B7158 a b\na -> b, c");
+  const by = Object.fromEntries(g.nodes.map(n => [n.id, n]));
+  assert.deepEqual([by.a.fill, by.b.fill, by.c.fill], ["#6B7158", "#6B7158", undefined]);
+  const [, warn] = quiet(() => parse("fill red a"));
+  assert.equal(warn.length, 1);
+  assert.deepEqual(parse("fill -> b").edges.map(e => [e.source, e.target]), [["fill", "b"]]);
+});
+
+test("a direction line sets the first layout, and a bad one warns", () => {
+  assert.equal(parse("direction right\na -> b").direction, "RIGHT");
+  assert.equal(parse("a -> b").direction, undefined);
+  const [, warn] = quiet(() => parse("direction up\na -> b"));
+  assert.equal(warn.length, 1);
 });
 
 test("an external line marks its nodes as components", () => {
@@ -103,4 +155,55 @@ test("a bad colour line throws: a dark colour on text or a line, firebrick, a he
 
 test("a link line from a node named color, with two spaces, still links", () => {
   assert.deepEqual(parse("color  -> b").edges.map(e => [e.source, e.target]), [["color", "b"]]);
+});
+
+// graph-node-names: a node name has up to 6 words, its _ parts. A longer name draws and warns.
+test("a node name of 1 to 6 words parses with no warning, each _ shown as a space", () => {
+  const [g, warn] = quiet(() => parse("a -> six_words_in_one_node_name\nsix_words_in_one_node_name: a note"));
+  assert.deepEqual(warn, [], "6 words is within the cap");
+  assert.equal(g.nodes.find(n => n.id === "six_words_in_one_node_name").label, "six words in one node name");
+});
+
+test("a node name of 7 words still draws, and warns once with its name and word count", () => {
+  const id = "seven_words_is_one_word_too_many";
+  const [g, warn] = quiet(() => parse(`a -> ${id}\n${id}: a note\nexternal ${id}`));
+  assert.ok(g.nodes.some(n => n.id === id), "the node is still in the graph");
+  assert.equal(warn.length, 1, "one warning per name, not one per line that names it");
+  assert.ok(warn[0].includes(id) && warn[0].includes("7 words"), warn[0]);
+});
+
+// graph-edge-labels F5: an about line gives each link with its text a note, one line per about line.
+test("about lines give a link with that text a note, in order, and add no node", () => {
+  const [g, warn] = quiet(() => parse("a -> b [food-record-body], c [other]\nabout [food-record-body]: 1. OCR\nabout [food-record-body]: 2. mark"));
+  assert.deepEqual(g.edges.map(e => e.desc), ["1. OCR\n2. mark", undefined]);
+  assert.deepEqual([g.nodes.length, warn], [3, []]);
+});
+
+// More description lines of one node join as lines of its hover, so a list shows as a list.
+test("two description lines of one node join, one per line", () => {
+  const [g] = quiet(() => parse("a -> b\na: One food.\na: - name"));
+  assert.equal(g.nodes.find(n => n.id === "a").desc, "One food.\n- name");
+});
+
+// graph-filter: a filter line asks for the button row under the graph.
+test("a filter line sets filter, and adds no node or link", () => {
+  const [g, warn] = quiet(() => parse("filter\na -> b"));
+  assert.equal(g.filter, true);
+  assert.deepEqual([g.nodes.map(n => n.id), g.edges.length, warn], [["a", "b"], 1, []], "filter is no node");
+});
+
+test("a graph with no filter line has filter false", () => {
+  assert.equal(parse("a -> b").filter, false);
+});
+
+test("a label line gives a node its display name, and two nodes can share one", () => {
+  const [g, warn] = quiet(() => parse("label raw_recipe: recipe\nlabel staging_recipe: recipe\nraw_recipe -> staging_recipe\nlabel -> b"));
+  const by = Object.fromEntries(g.nodes.map(n => [n.id, n]));
+  assert.deepEqual([by.raw_recipe.label, by.staging_recipe.label, by.raw_recipe.name], ["recipe", "recipe", "recipe"]);
+  assert.deepEqual([g.nodes.length, warn], [4, []], "no extra node, and a node named label still links");
+});
+
+// dotsGrow: in the center layout, a node with more links is a bigger dot.
+test("dotSize: more links, bigger dot", () => {
+  assert.ok(dotSize(3) > dotSize(1) && dotSize(0) > 0);
 });
