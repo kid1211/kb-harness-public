@@ -25,7 +25,10 @@ top="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || exit 0
 
 here="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 out="$(python3 -I "$here/scripts/project-map.py" check "$top" 2>&1)"
-case $? in
+rc=$?
+# A KB repo split into domains has rows inside it, and none of its own: that passes too.
+[ $rc = 1 ] && python3 -I "$here/scripts/project-map.py" list 2>/dev/null | tr ' ' '\n' | grep -q "^$top/" && exit 0
+case $rc in
   0) exit 0 ;;
   1) msg="A git commit just ran in $top, and that folder is not on the project map. Ask the user for its project, its role (such as frontend, backend or KB) and its KB, then add one row for it to the map ($out)." ;;
   2) msg="A git commit just ran in $top, but there is no project map ($out). Set it up: copy projects-mapping.md.template in the harness main checkout to projects-mapping.md there (git ignores it). Then ask the user for the project, role and KB of each folder they work in, this one first, and add a row for each." ;;

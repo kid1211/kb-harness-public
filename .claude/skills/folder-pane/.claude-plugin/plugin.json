@@ -1,6 +1,6 @@
 {
   "name": "folder-pane",
   "version": "0.1.0",
-  "description": "A folders button above the prompt that opens a pane: the coding folders and KBs of the session as links, and the loaded instructions files on a press",
+  "description": "A domains button above the prompt that opens a pane: the selected domain and its folders, each domain of the map to pick, and the loaded instructions files on a press",
   "types": "./types/index.d.ts"
 }

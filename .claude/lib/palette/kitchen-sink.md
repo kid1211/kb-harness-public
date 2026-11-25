@@ -104,6 +104,19 @@ For the heat map of the `plan-rounds` dashboard: 5 steps from slate blue (cold) 
 | ☑ | step 4 | `#90BCD2` | <span style="display:inline-block;width:3.2em;height:1.3em;background:#90BCD2;border-radius:4px;border:1px solid #555;vertical-align:middle"></span> |
 | ☑ | step 5 (hot) | `#A8D8EA` | <span style="display:inline-block;width:3.2em;height:1.3em;background:#A8D8EA;border-radius:4px;border:1px solid #555;vertical-align:middle"></span> |
 
+## 4e. Role tags
+
+For the line under the status line: one tag per code role of the project map, from the colours above. KB and tooling get no tag. Proposed by Claude on 2026-11-24, from `plans/global/components/multi-folder/components/folder-status/`. The user can change them.
+
+| Keep | Role | Background | Text | |
+|---|---|---|---|---|
+| ☐ | `frontend` | `#A8D8EA` | `#001F3F` | <span style="display:inline-block;padding:0 .4em;height:1.4em;line-height:1.4em;background:#A8D8EA;color:#001F3F;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">frontend</span> |
+| ☐ | `backend` | `#FD971F` | `#001F3F` | <span style="display:inline-block;padding:0 .4em;height:1.4em;line-height:1.4em;background:#FD971F;color:#001F3F;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">backend</span> |
+| ☐ | `mobile` | `#A6E22E` | `#001F3F` | <span style="display:inline-block;padding:0 .4em;height:1.4em;line-height:1.4em;background:#A6E22E;color:#001F3F;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">mobile</span> |
+| ☐ | `infra` | `#D2B48C` | `#001F3F` | <span style="display:inline-block;padding:0 .4em;height:1.4em;line-height:1.4em;background:#D2B48C;color:#001F3F;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">infra</span> |
+| ☐ | `lib` | `#6B7158` | `#FAF0E6` | <span style="display:inline-block;padding:0 .4em;height:1.4em;line-height:1.4em;background:#6B7158;color:#FAF0E6;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">lib</span> |
+| ☐ | `a role off the list` | `#B22222` | `#FFFFFF` | <span style="display:inline-block;padding:0 .4em;height:1.4em;line-height:1.4em;background:#B22222;color:#FFFFFF;font-family:monospace;font-weight:600;border-radius:3px;vertical-align:middle">weird</span> |
+
 ## 4c. Timeline letters
 
 For the timeline of the `plan-rounds` dashboard: one background colour per letter, from the palette above, and a text colour that reads on it. None is a blue of the heat map scale of 4b, which the pane draws just below. Proposed on 2026-10-29 by the design of `plans/global/components/mod/components/plan-tools/components/plan-rounds/components/state-timeline/`. Claude picked them all on 2026-10-30, at the user's word. The user can change them later.

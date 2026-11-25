@@ -23,7 +23,7 @@ import-graph: architecture.md
   Decision: pending
   Built: 0 of 1
   What Claude thinks the user means: I want the report one press away.
-- **F3.** The folders button of the folder pane sits in my writing line, next to config.
+- **F3.** The domains button of the folder pane sits in my writing line, next to config. Its label is `⧉ domain`. The status line names the domain.
   Decision: keep
   Built: 0 of 1
   What Claude thinks the user means: I want one line of buttons above the prompt, not two.

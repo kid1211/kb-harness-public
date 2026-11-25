@@ -33,6 +33,26 @@ The user's wants, 2026-11-19: "some times i need you to work on actual folders t
 - **F3.** The skills and instructions of each folder load when the session works on it. *(the user, 2026-11-19)*
 - **F4.** The session always shows which folders and which project it works on. This want comes first. *(the user, 2026-11-19)*
 - **F5.** Pick the best route between a mod, `/add-dir`, and links to the harness skills in each folder, from research. *(the user, 2026-11-19)*
+- **F7.** A session can work on worktrees of the code folders of a project: part `code-worktrees`. *(the user, 2026-11-23)*
+- **F8.** Three test folders next to the harness and an e2e script check the parts on real sessions, by hand: part `local-e2e`. *(the user, 2026-11-23)*
+- **F9.** The user points at one folder, and its siblings on the map and each `CLAUDE.md` and skill up to its git root load: part `point-at-folder`. *(the user, 2026-11-23)*
+- **F11.** Each role of the map means a way of work. The add-dir context tells Claude that way for each added folder:
+  - KB: the `kb` skill, on `main`, no worktree.
+  - frontend, backend, mobile, infra, lib: code, on a branch or worktree, tests before a commit.
+  - tooling: the harness rules, a plan first.
+
+  *(the user, 2026-11-24: "so all these are just tag it has no meaning to you?", "add that to the todo")*
+  Decision: pending
+  Built: 0 of 0
+  What Claude thinks the user means: the role tag must change what Claude does in that folder, not only label it.
+- **F12.** A check shows that the right `CLAUDE.md` files load after a domain pick. These are each added folder's own and each one up to its git root, and no other. *(the user, 2026-11-24: "make sure proper claude.md is loaded")*
+  Decision: pending
+  Built: 0 of 0
+  What Claude thinks the user means: a test, live or by script, that proves which instructions files the session has after a domain pick.
+- **F13.** A check shows that the skills of each added folder of a domain load after a pick, and the skills of no other folder. *(the user, 2026-11-24: "check if the skills are loaded")*
+  Decision: pending
+  Built: 0 of 0
+  What Claude thinks the user means: a test that lists the skills the session has after a domain pick, against the skills in the added folders.
 
 ## Open questions
 

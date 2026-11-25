@@ -27,23 +27,25 @@ import-graph: architecture.md
 
 **Invariants:** `quietWhenNone`, `recordedAll`.
 
-**Expected output:** nothing, exit 0. The status line looks as it does now. The session file is empty.
+**Expected output:** one line, nothing on line 1, exit 0. The session file is empty.
 
 ### group
 
-The script runs `scripts/project-map.py project <folder>` once per added folder. A folder on no row gets its own folder name back, and counts as a folder with no project.
+For each added folder, the script finds the top of its checkout (`git rev-parse --show-toplevel`) and its role (`scripts/project-map.py role <folder>`). A folder in no repo has no top.
 
 **Invariants:** none.
 
-**Expected output:** the project of each folder, in memory.
+**Expected output:** the top and role of each folder, in memory.
 
 ### shown
 
-**Invariants:** `eachFolderShown`, `projectOnce`, `recordedAll`.
+**Invariants:** `eachCodeShown`, `onlyCode`, `domainShown`, `recordedAll`.
 
 The session file is `${CLAUDE_MULTI_FOLDER_STATE:-~/.claude/multi-folder}/<session_id>/dirs`, one added folder per line. The script writes it only when the input has a `session_id`.
 
-**Expected output:** one line: `+ ` then one entry per group, joined by two spaces. A project group is `<project>(<name>,<name>)`, with the last folder name of each of its folders. A folder on no row is its own name. The entries keep the order of `added_dirs`.
+**Expected output:** one line, or nothing when no folder is code. Each code folder is `<role> <name>`: the role as a coloured tag, then the folder name of its top. Entries keep the order of `added_dirs`, once each, joined by two spaces. A code folder has a role of `frontend`, `backend`, `mobile`, `infra` or `lib`, and a top. A role off the list (`project-map.py` holds it) shows on a firebrick tag. `~/.claude/statusline.sh` prints the line under its own line.
+
+The script prints that line second. The first line is the domain, or `no domain`. The script writes the domain to the session file `domain` too: `domainsOf`, the largest domains of the map whose folders are all added (`project-map.py selected`), joined by `, `, or an empty file.
 
 ## Build checks
 
@@ -51,29 +53,33 @@ Unit tests: `tests/global/folder-status/test-folder-status.sh`, with a throwaway
 
 | Check | Holds |
 |---|---|
-| no `added_dirs`, or an empty one, prints nothing | `quiet`, `quietWhenNone`, `noneTest` |
-| two folders of one project print the project once, with both names | `group`, `show`, `projectOnce`, `twoFoldersTest` |
-| a folder on no row prints its own name | `eachFolderShown` |
-| the line starts with `+ ` | expected output of `shown` |
+| no `added_dirs`, or an empty one, prints nothing on line 1 and no code line | `quiet`, `quietWhenNone`, `noneTest` |
+| a code repo and its worktree show by their own folder names, each with its role tag | `group`, `show`, `eachCodeShown`, `twoFoldersTest` |
+| a KB, the harness, and a folder with no role or no repo do not show | `onlyCode`, `twoFoldersTest` |
+| with no code folder the script prints nothing | `onlyCode` |
+| a role off the list shows on the error tag | `show` |
+| `project-map.py role` gives the Role cell of the longest row | `group` |
+| the session file `domain` names the largest full domains; the first line is empty | `domainsOf`, `domainShown`, `twoFoldersTest` |
 | the session file holds the added folders, and is empty with none | `recordedAll` |
 
 ## Coverage
 
 | Want | Held by |
 |---|---|
-| F1 | `show`, `eachFolderShown` |
-| F2 | `group`, `projectOnce`, `twoFoldersTest` |
-| F3 | `quiet`, `quietWhenNone`, `noneTest` |
+| F1 | `show`, `eachCodeShown` |
+| F2 | `group`, `eachCodeShown`, `onlyCode`, `twoFoldersTest` |
+| F5 | `show`: the role list and its colours are in the script, the error tag is a unit test |
+| F6 | `show`, `domainsOf`, `domainShown`, `twoFoldersTest` |
 | F4 | `show`, `quiet`, `recordedAll`, `twoFoldersTest` |
 | shown | `twoFoldersTest` |
 | quiet | `noneTest` |
-| negative control | `neverTwoInOne`: the checker finds the shop group with two folders |
+| negative control | `neverEmpty`: the checker finds a run with folders added and none shown |
 | start and end | `initWith` sets the added folders, `done` keeps the end state |
 
 ## Risks
 
 - The session files stay in `~/.claude/multi-folder/` after a session ends. They are small. Delete the folder at any time.
-- The status line runs often. The script calls `project-map.py` once per added folder, so two or three folders cost under 0.2 s.
+- The status line runs often. The script calls `git` and `project-map.py` once per added folder, so two or three folders cost under 0.2 s.
 - `~/.claude/statusline.sh` is not in the harness. `mac-setup/claude-code-setup.md` names the line that calls this script, so a new Mac gets it back.
 - The docs say `added_dirs` holds the folders of `--add-dir` and `/add-dir`. A folder from `permissions.additionalDirectories` may not show. Not tested.
 
