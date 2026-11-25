@@ -1,93 +1,106 @@
-// The folder pane: a button opens a side pane with two main parts, the coding folders and the
-// KBs of the session, then a hidden part of the loaded instructions files and a warning.
+// The domains pane: a button opens a side pane. Its top part names the selected domain and the
+// added folders. Its Selecting part lists each domain of the map: a click prints the /add-dir lines
+// of its folders in the chat. At the bottom, a hidden part of the loaded instructions files.
 module folderPane {
-  // The context of each folder, as folder-context.py gives it. "" is no row.
-  // docs: the KB folders that the map gives the project of the folder.
-  type Ctx = { folder: str, project: str, role: str, docs: Set[str] }
-  pure val ctxOf: str -> Ctx = Map(
-    "/h" -> { folder: "/h", project: "harness", role: "tooling", docs: Set("/kb/personal") },
-    "/code/web" -> { folder: "/code/web", project: "shop", role: "code", docs: Set("/kb/shop") },
-    "/code/api" -> { folder: "/code/api", project: "shop", role: "code", docs: Set("/kb/shop") },
-    "/kb/personal" -> { folder: "/kb/personal", project: "personal", role: "KB", docs: Set() },
-    "/tmp/notes" -> { folder: "/tmp/notes", project: "", role: "", docs: Set() },
-  )
-  pure val added = Set("/code/web", "/code/api", "/kb/personal", "/tmp/notes")
+  // The test map: each domain and its folders.
+  pure val domainsOf: str -> Set[str] = Map(
+    "mf-web" -> Set("/t/web"), "mf-api" -> Set("/t/api"), "mf-both" -> Set("/t/web", "/t/api"),
+    "trade" -> Set("/p/trade"))
+  pure val names = domainsOf.keys()
   pure val start = "/h"
+  pure val folders = Set("/t/web", "/t/api", "/p/trade", "/tmp/notes")
 
-  pure def isKb(f: str): bool = ctxOf.get(f).role == "KB"
-  /// F2: each added folder that is not a KB, less the start folder.
-  pure def codingOf(fs: Set[str]): Set[str] = fs.filter(f => not(isKb(f)) and f != start)
-  /// F3, F4: each added KB folder, and each KB of the map for a project of the session.
-  pure def kbsOf(fs: Set[str]): Set[str] =
-    fs.filter(f => isKb(f)).union(fs.union(Set(start)).fold(Set(), (acc, f) => acc.union(ctxOf.get(f).docs)))
-      .exclude(Set(start))
+  /// F12: the largest domains whose folders are all added.
+  pure def full(d: Set[str]): Set[str] = names.filter(n => domainsOf.get(n).subseteq(d))
+  pure def selectedOf(d: Set[str]): Set[str] =
+    full(d).filter(n => not(full(d).exists(m => m != n and domainsOf.get(n).subseteq(domainsOf.get(m)))))
 
-  var phase: str              // closed, pressed, loading, shown
+  var phase: str              // closed, pressed, loading, shown, picked
   var isOpen: bool
   var dirs: Set[str]          // the session file of the added folders
-  var coding: Set[str]
-  var kbs: Set[str]
-  var notAdded: Set[str]      // the KBs of the map that are not added
+  var selected: Set[str]      // the Selected part: the domain
+  var listed: Set[str]        // the Selected part: the added folders
+  var addLines: Set[str]      // a click: the folders of its /add-dir lines
+  var switchTo: str           // a click: the domain of the new-session command, or ""
   var loaded: Set[str]        // the session file of the instructions files
   var instructions: Set[str]  // what the instructions part lists
-  var showInstructions: bool  // the instructions part, with its warning, is shown
+  var showInstructions: bool
 
   action keepData(p: str, o: bool): bool = all {
-    phase' = p, isOpen' = o, dirs' = dirs, coding' = coding, kbs' = kbs, notAdded' = notAdded,
-    loaded' = loaded, instructions' = instructions, showInstructions' = showInstructions,
+    phase' = p, isOpen' = o, dirs' = dirs, selected' = selected, listed' = listed, addLines' = addLines,
+    switchTo' = switchTo, loaded' = loaded, instructions' = instructions, showInstructions' = showInstructions,
   }
   /// F1, F9: the session starts with the pane closed and the instructions part hidden.
   action initWith(d: Set[str], l: Set[str]): bool = all {
-    phase' = "closed", isOpen' = false, dirs' = d, coding' = Set(), kbs' = Set(), notAdded' = Set(),
-    loaded' = l, instructions' = Set(), showInstructions' = false,
+    phase' = "closed", isOpen' = false, dirs' = d, selected' = Set(), listed' = Set(), addLines' = Set(),
+    switchTo' = "", loaded' = l, instructions' = Set(), showInstructions' = false,
   }
-  action init = nondet d = added.powerset().oneOf() initWith(d, Set("/h/CLAUDE.md"))
+  action init = nondet d = folders.powerset().oneOf() initWith(d, Set("/h/CLAUDE.md"))
 
-  /// F1: The user presses the button.
-  action press = all { Set("closed", "shown").contains(phase), keepData("pressed", isOpen) }
+  /// F1: the user presses the button.
+  action press = all { Set("closed", "shown", "picked").contains(phase), keepData("pressed", isOpen) }
   /// F1: a press on an open pane closes it.
   action close = all { phase == "pressed", isOpen, keepData("closed", false) }
   /// F1: a press on a closed pane opens it.
   action open = all { phase == "pressed", not(isOpen), keepData("loading", true) }
-  /// F2, F3, F4, F6: the pane draws from the session files and the map.
+  /// F12, F6: the pane draws from the session files and the map.
   action draw = all {
-    phase == "loading", phase' = "shown", isOpen' = true, dirs' = dirs, loaded' = loaded,
-    coding' = codingOf(dirs), kbs' = kbsOf(dirs), notAdded' = kbsOf(dirs).exclude(dirs),
+    phase == "loading", phase' = "shown", isOpen' = true, dirs' = dirs, selected' = selectedOf(dirs),
+    listed' = dirs.exclude(Set(start)), addLines' = Set(), switchTo' = "", loaded' = loaded,
     instructions' = loaded, showInstructions' = showInstructions,
+  }
+  /// F13, F14: a click on a domain prints its /add-dir lines, and a new-session command if the
+  /// session holds a folder of no part of it. The pane closes.
+  action pick(n: str): bool = all {
+    Set("shown", "picked").contains(phase), phase' = "picked", isOpen' = false, dirs' = dirs,
+    selected' = selected, listed' = listed, addLines' = domainsOf.get(n).exclude(dirs),
+    switchTo' = if (listed.exclude(domainsOf.get(n)).size() > 0) n else "",
+    loaded' = loaded, instructions' = instructions, showInstructions' = showInstructions,
   }
   /// F9: the button of the instructions part shows it, or hides it.
   action toggleInstructions = all {
-    phase == "shown", phase' = phase, isOpen' = isOpen, dirs' = dirs, coding' = coding, kbs' = kbs,
-    notAdded' = notAdded, loaded' = loaded, instructions' = instructions, showInstructions' = not(showInstructions),
+    phase == "shown", phase' = phase, isOpen' = isOpen, dirs' = dirs, selected' = selected, listed' = listed,
+    addLines' = addLines, switchTo' = switchTo, loaded' = loaded, instructions' = instructions,
+    showInstructions' = not(showInstructions),
   }
   /// F5: a new /add-dir: the next draw shows it.
   action addDir(f: str): bool = all {
-    phase == "shown", phase' = "loading", isOpen' = true, dirs' = dirs.union(Set(f)), coding' = coding,
-    kbs' = kbs, notAdded' = notAdded, loaded' = loaded, instructions' = instructions,
-    showInstructions' = showInstructions,
+    Set("shown", "picked").contains(phase), phase' = "loading", isOpen' = true, dirs' = dirs.union(Set(f)),
+    selected' = selected, listed' = listed, addLines' = addLines, switchTo' = switchTo, loaded' = loaded,
+    instructions' = instructions, showInstructions' = showInstructions,
   }
 
-  action step = any { press, close, open, draw, toggleInstructions, nondet f = added.oneOf() addDir(f) }
+  action step = any {
+    press, close, open, draw, toggleInstructions,
+    nondet n = names.oneOf() pick(n),
+    nondet f = folders.oneOf() addDir(f),
+  }
 
-  /// F2: the start folder is in no part.
-  val noStart = phase == "shown" implies not(coding.contains(start)) and not(kbs.contains(start))
-  /// F2, F3: each added folder is in one part: coding or KBs.
-  val eachAddedOnce = phase == "shown" implies
-    dirs.exclude(Set(start)).forall(f => coding.contains(f) != kbs.contains(f))
-  /// F3, F4: the KBs part holds the KBs of the map, and marks those not added.
-  val kbsFromMap = phase == "shown" implies kbs == kbsOf(dirs) and notAdded == kbs.exclude(dirs)
+  /// F12: the Selected part names the largest full domains, and each added folder but the start folder.
+  val selectedLargest = Set("shown", "picked").contains(phase) implies
+    (selected == selectedOf(dirs) and listed == dirs.exclude(Set(start)))
+  /// F13: a click prints a line for each folder of the domain not added yet, and closes the pane.
+  val pickAddsMissing = phase == "picked" implies (addLines.forall(f => not(dirs.contains(f))) and not(isOpen))
+  /// F14: a new-session command only when the session holds a folder outside the domain.
+  val switchWhenOther = phase == "picked" and switchTo != "" implies
+    listed.exclude(domainsOf.get(switchTo)).size() > 0
   /// F6: the instructions part lists each instructions file of the session file.
-  val instructionsListed = phase == "shown" implies instructions == loaded
-  /// NEGATIVE CONTROL: false on purpose, since two code folders share the coding part.
-  val neverShared = phase == "shown" implies coding.size() < 2
+  val instructionsListed = Set("shown", "picked").contains(phase) implies instructions == loaded
+  /// NEGATIVE CONTROL: false on purpose, since a click with other folders added gives the command.
+  val neverSwitch = switchTo == ""
 
-  /// F2, F3, F4: the coding part has both code folders and the folder on no row, not the start folder.
-  /// The KBs part has the added KB and the KB of the shop project, marked not added.
+  /// F12: web and api added: the selected domain is mf-both, not mf-web or mf-api.
   /// shown
-  run drawTest = initWith(added, Set("/h/CLAUDE.md")).then(press).then(open).then(draw)
-    .expect(coding == Set("/code/web", "/code/api", "/tmp/notes")
-      and kbs == Set("/kb/personal", "/kb/shop") and notAdded == Set("/kb/shop")
-      and instructions == Set("/h/CLAUDE.md") and not(showInstructions))
+  run drawTest = initWith(Set("/t/web", "/t/api"), Set("/h/CLAUDE.md")).then(press).then(open).then(draw)
+    .expect(selected == Set("mf-both") and listed == Set("/t/web", "/t/api") and instructions == Set("/h/CLAUDE.md"))
+  /// F13: web added, a click on mf-both prints the line of api alone.
+  /// picked
+  run pickTest = initWith(Set("/t/web"), Set()).then(press).then(open).then(draw).then(pick("mf-both"))
+    .expect(addLines == Set("/t/api") and switchTo == "")
+  /// F14: web added, a click on trade prints the trade line and the new-session command.
+  /// picked
+  run switchTest = initWith(Set("/t/web"), Set()).then(press).then(open).then(draw).then(pick("trade"))
+    .expect(addLines == Set("/p/trade") and switchTo == "trade")
   /// F9: a press on the button of the instructions part shows it.
   /// shown
   run instructionsTest = initWith(Set(), Set("/h/CLAUDE.md")).then(press).then(open).then(draw)
@@ -96,8 +109,4 @@ module folderPane {
   /// closed
   run closeTest = initWith(Set(), Set()).then(press).then(open).then(draw).then(press).then(close)
     .expect(phase == "closed" and not(isOpen))
-  /// F5: an add redraws the pane with the new folder.
-  /// shown
-  run addTest = initWith(Set(), Set()).then(press).then(open).then(draw).then(addDir("/code/web")).then(draw)
-    .expect(coding.contains("/code/web"))
 }

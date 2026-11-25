@@ -1,4 +1,4 @@
-# folder-status: the status line groups an added folder under its project
+# folder-status: the status line names the domain, and each code folder under it
 
 ## Covers
 
@@ -8,7 +8,7 @@
 
 1. Make a temp folder `$T`.
 2. Run `git clone <checkout> $T/h`, with `<checkout>` the harness checkout you test.
-3. Make the folder `$T/mapped`. Write `$T/map.md` with one row: project `shop`, folder `$T/mapped`, as in `tests/e2e/project-map/map-and-commit-check.md`.
+3. Make the folder `$T/mapped`. Write `$T/map.md` with one row: project `shop`, folder `$T/mapped`, role `frontend`, as in `tests/e2e/project-map/map-and-commit-check.md`.
 
 ## Steps
 
@@ -19,7 +19,7 @@
 ## Expected
 
 1. Step 1 exits 0, and prints no line that starts with `not ok`.
-2. Step 2 prints one line, `+ shop(mapped)`.
+2. Step 2 prints one line, `shop`: `$T/mapped` is in no repo, so no code folder shows.
 3. `$T/st/s1/dirs` holds the one line `$T/mapped`.
 4. Step 3 prints nothing, and `$T/st/s2/dirs` is empty.
 

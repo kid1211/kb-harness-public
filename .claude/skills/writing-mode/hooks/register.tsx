@@ -63,9 +63,9 @@ async function refresh($: Engine) {
 
 // The pane buttons at the right of the band, one logic for each: a press runs the
 // `/<command> toggle` of the mod that owns the pane, which opens it or closes it.
-// The folder pane belongs to the folder-pane mod, the report pane to this one.
+// The domains pane belongs to the folder-pane mod, the report pane to this one.
 const PANE_BUTTONS = [
-  { key: 'folders', label: '⧉ folders', command: 'folders' },
+  { key: 'domains', label: '⧉ domain', command: 'domains' },
   { key: 'config', label: '⚙ config', command: 'writing-check' },
 ] as const
 

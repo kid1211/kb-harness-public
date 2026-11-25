@@ -2,12 +2,12 @@
 
 ## Goal
 
-A mod button, like the config button of writing-mode, opens a pane on the side. It shows each folder the session loads, by project and with its role, and at the bottom the supporting docs of each project from the map.
+A mod button, like the config button of writing-mode, opens a pane on the side. It shows the selected domain and the added folders with their roles, then each domain of the map to pick, and at the bottom the loaded instructions.
 
 Route: poc
 
 Builds: `.claude/skills/folder-pane/`
-Uses: the mod API of Claude Code, `scripts/project-map.py`, the writing-mode mod as the example of a button and a pane
+Uses: the mod API of Claude Code, `scripts/project-map.py` (the `domains` look-up), `scripts/project-start.sh`, the writing-mode mod as the example of a button and a pane
 
 ## Architecture
 
@@ -19,16 +19,17 @@ import-graph: architecture.md
 
 The user's wants, 2026-11-20.
 
-- **F1.** A `⧉ folders` button in the writing-mode line, next to `⚙ config`, opens and closes a pane on the side. `/folders` opens it too. *(the user, 2026-11-20)*
-- **F2.** The pane lists the coding folders: each added folder that is not a KB, with its project. It leaves out the start folder, since the session runs in it. *(the user, 2026-11-20)*
-- **F3.** The pane lists the KBs: each added KB folder, and each KB folder that the map gives a project of the session. A KB of the map that is not added says so. *(the user, 2026-11-20)*
-- **F4.** Supporting docs and KBs are one thing: the pane has one KB part, not two. *(the user, 2026-11-20)*
+- **F1.** A button in the writing-mode line, next to `⚙ config`, opens and closes the pane, titled Domains. Its label is `⧉ domain`. `/domains` opens it too. *(the user, 2026-11-24: "let's change folders to domains", "after selected still not updated, i think just call this domain, and on the status line actually show either no domain or the name of the domain")*
+- **F12.** The top part, Active domain, names the domain the session works on and lists each added folder after a tag of its role, in the colour of the role. The selected domain is the largest domain of the map whose folders are all added. *(the user, 2026-11-24: "on the top show what is selected and what are the folders added", of the role tags: "those should be inside of domain")*
+- **F13.** Under a "Pick one from this list" heading, the pane lists each domain of the map, numbered. A click on one closes the pane, with no model call. With no active domain, the click runs `/add-dir <folder>` for each of its folders not added yet. A line that cannot run goes to the chat and to the clipboard, ready to paste. *(the user, 2026-11-24: "if i click any one of them, output me on the normal pane of what add-dir to do", "when it is selected the pane should be closed", "the goal is to have multiple that we need to add", "make the text copy and paste ready", "it should add multiple no?")*
+- **F14.** With another domain active, the chat and the clipboard get only the command that starts a fresh session with the clicked domain: `bash ~/second-brain/harness/scripts/project-start.sh <domain>`. Claude Code cannot remove an added folder. A folder on no row of the map, such as `personal`, makes no domain active. *(the user, 2026-11-24: "if we are switching we need to also remove dir?", "if no domain, then just give me list of add-dir", "if domain selected, give me" the project-start line)*
+- **F15.** Active domain and "Pick one from this list" are headings, in the heading colour, and their items have no indent. The selected domain name is in its own colour, the one the status line gives it. *(the user, 2026-11-24: "selected and select can be heading no?", "the name should be in different color")*
+- **F16.** Each added folder shows as its last three folder names, such as `test-folders/folder-a/web`. *(the user, 2026-11-24: "the path just give me the 3 level deep from the actual folder")*
 - **F5.** The pane updates when the user adds a folder. *(the user, 2026-11-20)*
 - **F6.** The pane lists the instructions files the session has for each folder, so the user sees what Claude loaded. *(the user, 2026-11-20)*
 - **F7.** The instructions part shows one text warning to the user: Claude Code 2.1.329 does not load the instructions of a subfolder in an added folder, so check this again after an update. *(the user, 2026-11-20)*
 - **F8.** Each folder and file path in the pane is a link: a click opens it. *(the user, 2026-11-20)*
 - **F9.** The instructions part, with its warning, is hidden by default. A button shows and hides it. *(the user, 2026-11-20)*
-- **F10.** The pane shows each coding folder and KB relative to the start folder, so a line stays short. *(the user, 2026-11-20)*
 - **F11.** The instructions part lists each folder that holds a loaded instructions file, by its full path, once, with a short tag of how it loaded. The warning sits at the bottom of the pane. *(the user, 2026-11-20)*
 
 ## Open questions

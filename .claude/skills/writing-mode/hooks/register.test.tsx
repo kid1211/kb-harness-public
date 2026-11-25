@@ -196,17 +196,17 @@ test('config toggle: a press of config with the pane open closes it, and the nex
   await band.unmount()
 })
 
-test('folders button: ⧉ folders sits left of config, and each press asks /folders to toggle, as config asks /writing-check', async ($, on) => {
+test('domains button: ⧉ domain sits left of config, and each press asks /domains to toggle, as config asks /writing-check', async ($, on) => {
   const open = engine(on, {})
   const asked: string[] = []
-  on('command.run', { command: 'folders' }, (_: unknown, e: { args: string }) => { asked.push(e.args); return {} })
+  on('command.run', { command: 'domains' }, (_: unknown, e: { args: string }) => { asked.push(e.args); return {} })
   await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
   const band = await $.ui.mount(BAND)
-  expect((await band.find({ key: 'folders' }))?.text).toBe('⧉ folders')
+  expect((await band.find({ key: 'domains' }))?.text).toBe('⧉ domain')
   const drawn = JSON.stringify(await band.drawn())
-  expect(drawn.indexOf('⧉ folders')).toBeLessThan(drawn.indexOf('⚙ config'))
-  await band.press({ key: 'folders' })
-  await band.press({ key: 'folders' })
+  expect(drawn.indexOf('⧉ domain')).toBeLessThan(drawn.indexOf('⚙ config'))
+  await band.press({ key: 'domains' })
+  await band.press({ key: 'domains' })
   expect(asked).toEqual(['toggle', 'toggle'])
   expect(open.size).toBe(0)
   await band.unmount()

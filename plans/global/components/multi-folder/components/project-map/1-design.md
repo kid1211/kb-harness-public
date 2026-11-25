@@ -109,6 +109,7 @@ Unit tests: `tests/global/project-map/test-project-map.sh`, on a throwaway map p
 | `check` with no map exits 2 | `checkNoMapTest` |
 | with no `PROJECT_MAP`, the script reads `projects-mapping.md` of the main checkout, also from a worktree | F4 |
 | the hook: a commit in a folder on no row adds context that names it, no map adds the set-up context, a mapped folder and a call with no commit print nothing | F5 |
+| the hook passes a commit in a repo that holds a row and has none of its own; `domains` gives each domain with its folders and roles as JSON | F6 |
 
 ## Coverage
 
@@ -119,6 +120,7 @@ Unit tests: `tests/global/project-map/test-project-map.sh`, on a throwaway map p
 | F3 | `fallback`, `unknownFallsBack` |
 | F4 | not in the model, a path rule: the default-path test and the `.gitignore` line |
 | F5 | `checked`, `unmapped`, `checkedQuiet`, `unmappedNamesFolder`, and the hook tests |
+| F6 | not in the model, a hook rule: `tests/global/project-map/test-split-kb.sh` |
 | checked | `checkedTest` |
 | unmapped | `unmappedTest` |
 | folders | `foldersTest` |

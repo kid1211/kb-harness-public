@@ -7,15 +7,23 @@
   project-map.py check <path>        quiet when a folder of the map holds the path,
                                      else "not on the map: <path>" and exit 1
   project-map.py list                each project with its folders
+  project-map.py roles <project>     each folder of the project, a tab, and its Role cell
+  project-map.py role <path>         the Role cell of the longest row that holds the path, or nothing
+  project-map.py domains             each domain with its folders and roles, as JSON: the domains pane
+  project-map.py selected <path>...  the largest domains whose folders are all in the paths, joined by ", "
 
 The map is the first Markdown table with a Project and a Folder column in
 $PROJECT_MAP, else projects-mapping.md in the main checkout of this harness.
 Git ignores that file; projects-mapping.md.template is its start.
 Plan: plans/global/components/multi-folder/components/project-map/.
 """
+import json
 import os
 import subprocess
 import sys
+
+ROLES = {}  # (project, folder) -> the Role cell, filled by read_rows
+ROLE_LIST = ("frontend", "backend", "mobile", "infra", "lib", "KB", "tooling")
 
 
 def default_map():
@@ -46,6 +54,7 @@ def read_rows(path):
         if cols is None:
             if cells and "Project" in cells and "Folder" in cells:
                 cols = (cells.index("Project"), cells.index("Folder"))
+                role = cells.index("Role") if "Role" in cells else None
             continue
         if cells is None:
             break
@@ -54,6 +63,7 @@ def read_rows(path):
         project, folder = cells[cols[0]], cells[cols[1]].strip("`")
         if project and folder:
             rows.append((project, os.path.expanduser(folder).rstrip("/") or "/"))
+            ROLES[rows[-1]] = cells[role] if role is not None and role < len(cells) else ""
     return rows if cols else None
 
 
@@ -61,15 +71,20 @@ def holds(folder, path):
     return path == folder or path.startswith(folder + "/")
 
 
-def project_of(rows, path):
-    """The project of the longest folder that is the path or holds it, else None."""
+def row_of(rows, path):
+    """The row (project, folder) of the longest folder that is the path or holds it, else None."""
     forms = {os.path.abspath(path).rstrip("/") or "/", os.path.realpath(path).rstrip("/") or "/"}
-    best = None
+    best, size = None, -1
     for project, folder in rows:
         for f in {folder, os.path.realpath(folder)}:
-            if any(holds(f, p) for p in forms) and (best is None or len(f) > len(best[1])):
-                best = (project, f)
-    return best[0] if best else None
+            if any(holds(f, p) for p in forms) and len(f) > size:
+                best, size = (project, folder), len(f)
+    return best
+
+
+def project_of(rows, path):
+    row = row_of(rows, path)
+    return row[0] if row else None
 
 
 def projects(rows):
@@ -77,7 +92,7 @@ def projects(rows):
 
 
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("folders", "project", "check", "list") or (argv[1] != "list" and len(argv) != 3):
+    if len(argv) < 2 or argv[1] not in ("folders", "project", "check", "list", "roles", "role", "domains", "selected") or (argv[1] not in ("list", "domains", "selected") and len(argv) != 3):
         print(__doc__.strip(), file=sys.stderr)
         return 64
     path = map_path()
@@ -86,18 +101,32 @@ def main(argv):
         print(f"no project map: {path}", file=sys.stderr)
         return 2
     kind = argv[1]
+    if kind == "domains":
+        print(json.dumps([{"name": p, "folders": [{"folder": f, "role": ROLES[(q, f)]} for q, f in rows if q == p]}
+                          for p in projects(rows)]))
+        return 0
+    if kind == "selected":
+        added = {os.path.realpath(p) for p in argv[2:]}
+        sets = {p: {os.path.realpath(f) for q, f in rows if q == p} for p in projects(rows)}
+        full = [p for p in sets if sets[p] <= added]
+        print(", ".join(p for p in full if not any(o != p and sets[p] <= sets[o] for o in full)))
+        return 0
     if kind == "list":
         for p in projects(rows):
             print(f"{p}: " + " ".join(f for q, f in rows if q == p))
         return 0
     arg = argv[2]
-    if kind == "folders":
-        found = [f for p, f in rows if p == arg]
+    if kind in ("folders", "roles"):
+        found = [f + ("\t" + ROLES[(p, f)] if kind == "roles" else "") for p, f in rows if p == arg]
         if not found:
             print(f"unknown project: {arg}", file=sys.stderr)
             print("\n".join(projects(rows)))
             return 1
         print("\n".join(found))
+        return 0
+    if kind == "role":
+        row = row_of(rows, arg)
+        print(ROLES[row] if row else "")
         return 0
     if kind == "check":
         if project_of(rows, arg):
