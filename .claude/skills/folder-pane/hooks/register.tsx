@@ -2,6 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Engine, Register } from 'claude-code'
 
 import type { Ctx, Data, Domain } from '../types'
+import { PANE as WT_PANE, refresh as refreshWorktrees, register as worktrees } from './worktrees'
 
 // The design: plans/global/components/multi-folder/components/folder-pane/.
 // The status line and the add-dir hook write the added folders to `dirs`, and the
@@ -137,20 +138,23 @@ async function pick($: Engine, dom: Domain, dirs: string[], all: Domain[]) {
 }
 
 export const register: Register = on => {
+  // The worktrees pane: one hooks module per mod, so it registers from here.
+  worktrees(on)
   // One pane at a time: when another pane opens, this mod closes its own.
   // An open of this pane, by /domains or by the domains button of writing-mode, reads the data.
+  // The worktrees pane takes part too: each pane of this mod closes when another opens.
   on('ui.open', async ($, e, next) => {
-    if (e.id !== PANE) {
-      await $.ui.close({ id: PANE })
-      return next(e)
-    }
+    if (e.id !== PANE) await $.ui.close({ id: PANE })
+    if (e.id !== WT_PANE) await $.ui.close({ id: WT_PANE })
+    if (e.id !== PANE && e.id !== WT_PANE) return next(e)
     const result = await next(e)
-    await refresh($)
+    await (e.id === PANE ? refresh($) : refreshWorktrees($))
     return result
   })
 
   on('session.start', async ($, e, next) => {
     await $.command.register({ name: 'domains', description: 'Show the selected domain and its folders, and pick a domain' })
+    await $.command.register({ name: 'worktrees', description: 'Show the folders of the session and their worktrees, and open one in VS Code' })
     return next(e)
   })
 
