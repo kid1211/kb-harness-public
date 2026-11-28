@@ -201,6 +201,15 @@ A text glyph in front of a button label in the line above the prompt, drawn in t
 | ☑ | `⧉` | two squares, kept by the user 2026-11-20 for the folders button | `⧉ folders` |
 | ☐ | `▤` | lined square | `▤ folders` |
 
+Choices for the `worktrees` button of the folder pane, added 2026-11-28. The button has no glyph until the user keeps one:
+
+| Keep | Glyph | Name | How it looks |
+|---|---|---|---|
+| ☐ | `⎇` | branch, U+2387 | `⎇ worktrees` |
+| ☐ | `⑂` | fork, U+2442 | `⑂ worktrees` |
+| ☐ | `⊞` | squared plus | `⊞ worktrees` |
+| ☐ | `≡` | three bars | `≡ worktrees` |
+
 ## 6b. Research question marks
 
 The user asked for these on 2026-10-24, in VS Code's preview of a `0-index.md`. Each mark is the bullet of its line, and a hover shows the legend with its row in bold. They are in use, in `.claude/lib/plan-preview/plan-preview.js`. Change one here and there.

@@ -212,6 +212,21 @@ test('domains button: ⧉ domain sits left of config, and each press asks /domai
   await band.unmount()
 })
 
+test('worktrees button: sits between domain and config, and each press asks /worktrees to toggle', async ($, on) => {
+  engine(on, {})
+  const asked: string[] = []
+  on('command.run', { command: 'worktrees' }, (_: unknown, e: { args: string }) => { asked.push(e.args); return {} })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  const band = await $.ui.mount(BAND)
+  expect((await band.find({ key: 'worktrees' }))?.text).toBe('worktrees')
+  const drawn = JSON.stringify(await band.drawn())
+  expect(drawn.indexOf('⧉ domain')).toBeLessThan(drawn.indexOf('worktrees'))
+  expect(drawn.indexOf('worktrees')).toBeLessThan(drawn.indexOf('⚙ config'))
+  await band.press({ key: 'worktrees' })
+  expect(asked).toEqual(['toggle'])
+  await band.unmount()
+})
+
 test('/writing-check toggle closes an open pane, and /writing-check alone only opens', async ($, on) => {
   const open = engine(on, {})
   await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })

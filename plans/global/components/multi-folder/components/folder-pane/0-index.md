@@ -7,7 +7,7 @@ A mod button, like the config button of writing-mode, opens a pane on the side. 
 Route: poc
 
 Builds: `.claude/skills/folder-pane/`
-Uses: the mod API of Claude Code, `scripts/project-map.py` (the `domains` look-up), `scripts/project-start.sh`, the writing-mode mod as the example of a button and a pane
+Uses: the mod API of Claude Code, `scripts/project-map.py` (the `domains` look-up, with each domain prompt), `git worktree list`, VS Code, `scripts/project-start.sh`, the writing-mode mod as the example of a button and a pane
 
 ## Architecture
 
@@ -25,6 +25,10 @@ The user's wants, 2026-11-20.
 - **F14.** With another domain active, the chat and the clipboard get only the command that starts a fresh session with the clicked domain: `bash ~/second-brain/harness/scripts/project-start.sh <domain>`. Claude Code cannot remove an added folder. A folder on no row of the map, such as `personal`, makes no domain active. *(the user, 2026-11-24: "if we are switching we need to also remove dir?", "if no domain, then just give me list of add-dir", "if domain selected, give me" the project-start line)*
 - **F15.** Active domain and "Pick one from this list" are headings, in the heading colour, and their items have no indent. The selected domain name is in its own colour, the one the status line gives it. *(the user, 2026-11-24: "selected and select can be heading no?", "the name should be in different color")*
 - **F16.** Each added folder shows as its last three folder names, such as `test-folders/folder-a/web`. *(the user, 2026-11-24: "the path just give me the 3 level deep from the actual folder")*
+- **F20.** A domain with a `### <domain>` heading under `## Domain prompts` of the map has a prompt. After its `/add-dir` lines run, a pick puts that prompt in the prompt box, so the user types the task at its end. A switch to a new session gets no prompt.
+- **F17.** A worktrees button sits next to the domains button and opens and closes a pane, titled Worktrees. `/worktrees` opens it too. *(the user, 2026-11-28: "Next to domains, have a button called show current working tree")*
+- **F18.** The Worktrees pane lists each folder of the session once per repo: its main checkout with its branch, then each worktree made from it with its branch, and which one this session runs in. A folder out of git says so. *(the user, 2026-11-28: "show any of the worktree and folder")*
+- **F19.** Only a made worktree is a button. A press opens that whole folder in VS Code, where its Source Control view shows the diff. The main checkout is no button. *(the user, 2026-11-28: "only worktree folders that is created can be clickable and when click open that entire folder in vscode (I want to see the git diff)")*
 - **F5.** The pane updates when the user adds a folder. *(the user, 2026-11-20)*
 - **F6.** The pane lists the instructions files the session has for each folder, so the user sees what Claude loaded. *(the user, 2026-11-20)*
 - **F7.** The instructions part shows one text warning to the user: Claude Code 2.1.329 does not load the instructions of a subfolder in an added folder, so check this again after an update. *(the user, 2026-11-20)*
