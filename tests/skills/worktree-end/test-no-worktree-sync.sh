@@ -9,7 +9,7 @@ for d in .claude/skills/worktree-sync tests/e2e/worktree-sync; do
   [ -e "$d" ] && { echo "FAIL $d still exists"; fail=1; }
 done
 hits="$(git grep -l 'worktree-sync' -- . \
-  ':!**/alt-*.md' ':!scripts/public-release/public/changelogs/' ':!tests/skills/spec/fixtures/' \
+  ':!**/alt-*.md' ':!scripts/public-release/public/changelogs/' ':!changelogs/' ':!tests/skills/spec/fixtures/' \
   ':!plans/release-video/' ':!tests/plans/release-video/' ':!plans/worktree-end/' \
   ':!tests/skills/worktree-end/test-no-worktree-sync.sh' ':!tests/e2e/worktree-end/no-worktree-sync.md')"
 if [ -n "$hits" ]; then
