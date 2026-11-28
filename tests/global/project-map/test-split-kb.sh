@@ -24,6 +24,30 @@ out=$(PROJECT_MAP="$t/map.md" python3 -I "$map" domains); rc=$?
 want=$(printf '[{"name": "trade", "folders": [{"folder": "%s/p/trade", "role": "KB"}]}, {"name": "health", "folders": [{"folder": "%s/p/me", "role": "KB"}, {"folder": "%s/p/other", "role": "KB"}]}, {"name": "shop", "folders": [{"folder": "%s/web", "role": "frontend"}, {"folder": "%s/p/me", "role": "KB"}]}]' "$t" "$t" "$t" "$t" "$t")
 ok "domains gives each domain once, in map order, with its folders and roles" '[ $rc = 0 ] && [ "$out" = "$want" ]'
 ok "a folder in two domains has its own role in each" '[[ $out == *"\"shop\", \"folders\": [{\"folder\": \"$t/web\""* ]]'
+cat >> "$t/map.md" <<'MAP'
+
+## Domain prompts
+
+### trade
+
+Context:
+- trade is the trade KB
+
+What I want to run:
+
+### shop
+
+## Other
+
+### health
+
+not a prompt
+MAP
+out=$(PROJECT_MAP="$t/map.md" python3 -I "$map" domains)
+ok "a domain with a ### heading gets the text under it as its prompt" \
+  '[ "$(jq -r ".[0].prompt" <<< "$out")" = "$(printf "Context:\n- trade is the trade KB\n\nWhat I want to run:")" ]'
+ok "an empty heading, and a heading out of Domain prompts, give no prompt" \
+  '[ "$(jq -c "[.[] | has(\"prompt\")]" <<< "$out")" = "[true,false,false]" ]'
 out=$(PROJECT_MAP="$t/none.md" python3 -I "$map" domains 2>&1); rc=$?
 ok "domains with no map exits 2" '[ $rc = 2 ]'
 

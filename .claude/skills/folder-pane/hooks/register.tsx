@@ -125,6 +125,9 @@ async function pick($: Engine, dom: Domain, dirs: string[], all: Domain[]) {
     ? $.command.run({ command: 'add-dir', args: line.slice('/add-dir '.length) } as never).then(() => true, () => false)
     : false))
   const left = lines.filter((_, i) => !ran[i])
+  // The domain prompt of the map, after the /add-dir lines: the person types the task at its end.
+  // A switch to a new session gets none: the prompt belongs to that session.
+  if (dom.prompt && !left.some(l => l.includes('project-start.sh'))) await $.prompt.fill({ text: dom.prompt })
   if (!left.length) return
   for (const line of left) $.ui.log(line)
   if (!left[0]!.endsWith('already selected.')) {
