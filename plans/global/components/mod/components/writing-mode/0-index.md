@@ -27,7 +27,7 @@ import-graph: architecture.md
   Decision: keep
   Built: 0 of 1
   What Claude thinks the user means: I want one line of buttons above the prompt, not two.
-- **F4.** The worktrees button of the folder pane sits in my writing line, between `⧉ domain` and `⚙ config`. Its label is `worktrees` until I pick a glyph from the kitchen sink.
+- **F4.** The worktrees button of the folder pane sits in my writing line, between `⧉ domain` and `⚙ config`. Its label is `⑂ worktrees`, the fork glyph the user kept in the kitchen sink on 2026-11-28.
   Decision: pending
   Built: 1 of 1
   What Claude thinks the user means: I want to see my worktrees one press away, next to the domains.

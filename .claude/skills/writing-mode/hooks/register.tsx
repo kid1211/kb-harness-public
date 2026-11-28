@@ -66,7 +66,7 @@ async function refresh($: Engine) {
 // The domains and worktrees panes belong to the folder-pane mod, the report pane to this one.
 const PANE_BUTTONS = [
   { key: 'domains', label: '⧉ domain', command: 'domains' },
-  { key: 'worktrees', label: 'worktrees', command: 'worktrees' },
+  { key: 'worktrees', label: '⑂ worktrees', command: 'worktrees' },
   { key: 'config', label: '⚙ config', command: 'writing-check' },
 ] as const
 

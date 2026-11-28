@@ -201,12 +201,12 @@ A text glyph in front of a button label in the line above the prompt, drawn in t
 | ☑ | `⧉` | two squares, kept by the user 2026-11-20 for the folders button | `⧉ folders` |
 | ☐ | `▤` | lined square | `▤ folders` |
 
-Choices for the `worktrees` button of the folder pane, added 2026-11-28. The button has no glyph until the user keeps one:
+Choices for the `worktrees` button of the folder pane, added 2026-11-28. The user kept `⑂` on 2026-11-28. It is in use, in `.claude/skills/writing-mode/hooks/register.tsx`:
 
 | Keep | Glyph | Name | How it looks |
 |---|---|---|---|
 | ☐ | `⎇` | branch, U+2387 | `⎇ worktrees` |
-| ☐ | `⑂` | fork, U+2442 | `⑂ worktrees` |
+| ☑ | `⑂` | fork, U+2442 | `⑂ worktrees` |
 | ☐ | `⊞` | squared plus | `⊞ worktrees` |
 | ☐ | `≡` | three bars | `≡ worktrees` |
 

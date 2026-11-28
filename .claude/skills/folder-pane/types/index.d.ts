@@ -6,6 +6,6 @@ export type Data = { start: string; home: string; folders: Ctx[]; domains: Domai
 
 declare module 'claude-code' {
   interface PluginState {
-    'folder-pane': { data: Data; showInstructions: boolean; repos: Repo[] }
+    'folder-pane': { data: Data; showInstructions: boolean; worktrees: { selected: string[]; repos: Repo[]; session: { path: string; branch: string; main: boolean } | null } }
   }
 }
