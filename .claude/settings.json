@@ -1,0 +1,177 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/branch-guard.sh\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/branch-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Write(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/draw-graph/hooks/no-mermaid.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/draw-graph/hooks/no-mermaid.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/draw-graph/hooks/no-mermaid.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/draw-graph/hooks/no-mermaid.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "MultiEdit(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/draw-graph/hooks/no-mermaid.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/draw-graph/hooks/no-mermaid.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/nested-instructions.sh\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/nested-instructions.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Write(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/draw-graph/hooks/check-graph.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/draw-graph/hooks/check-graph.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/draw-graph/hooks/check-graph.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/draw-graph/hooks/check-graph.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "MultiEdit(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/draw-graph/hooks/check-graph.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/draw-graph/hooks/check-graph.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git *)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/project-map-check.sh\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/project-map-check.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Write(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/writing-check.py\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/writing-check.py post"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/writing-check.py\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/writing-check.py post"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "MultiEdit(*.md)",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/writing-check.py\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/writing-check.py post"
+          }
+        ]
+      }
+    ],
+    "DirectoryAdded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/add-dir-context.sh\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/add-dir-context.sh"
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/nested-instructions.sh\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/nested-instructions.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/add-dir-context.sh\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/add-dir-context.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/hooks/writing-check.py\" ] && break; done; printf %s \"$d\")\"/.claude/hooks/writing-check.py stop"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(for d in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$(dirname \"$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)\")\" \"${CLAUDE_PROJECT_DIR:-$PWD}\"; do [ -x \"$d/.claude/skills/session-retro/scripts/reminder.sh\" ] && break; done; printf %s \"$d\")\"/.claude/skills/session-retro/scripts/reminder.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

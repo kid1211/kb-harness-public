@@ -1,0 +1,56 @@
+/* Graph colours follow the VS Code theme. */
+.dg-graph {
+  margin: 14px 0; padding: 10px; border-radius: 8px;
+  border: 1px solid var(--vscode-panel-border, #4A6A88);
+  background: var(--vscode-textCodeBlock-background, #363636);
+  --dg-node: var(--vscode-editor-background, #1e1e1e);
+  --dg-comp: #191970; /* a component node: midnight blue, a spare dark fill of the palette */
+  --dg-begin: #4A6A88; /* where a flow starts: slate blue */
+  --dg-end: #4F7942; /* where a flow ends well: fern */
+  --dg-fail: #B22222; /* where a flow stops on a failure: firebrick */
+  --dg-skill: #A8D8EA; /* the border of a skill node: light blue */
+  --dg-hook: #D2B48C; /* the border of a hook node: tan */
+  --dg-fg: var(--vscode-editor-foreground, #ddd);
+  --dg-border: #4A6A88;
+  --dg-line: var(--vscode-descriptionForeground, #999);
+  --dg-hl: #D2B48C;
+  --dg-bg: var(--vscode-textCodeBlock-background, #363636);
+  --dg-group: var(--vscode-descriptionForeground, #999);
+}
+.dg-err { color: #FAF0E6; background: #B22222; padding: 6px 10px; border-radius: 6px; }
+
+/* Text colours in a dark theme. Each role is a variable: the user's palette by default
+   (palette.css, .claude/lib/palette/), and the theme's own colours for Monokai (the
+   harness) and Abyss (the personal KB), so the preview matches the editor. */
+body.vscode-dark {
+  --pv-heading: var(--pal-tan); --pv-bold: var(--pal-linen); --pv-em: var(--pal-tan);
+  --pv-link: var(--pal-light-blue); --pv-code: var(--pal-light-blue); --pv-code-bg: var(--pal-navy);
+  --pv-rule: var(--pal-slate-blue); --pv-quote-bg: var(--pal-charcoal);
+  --pv-mark: var(--pal-tan); --pv-mark-fg: var(--pal-navy); --pv-check: var(--pal-light-blue);
+}
+body.vscode-dark:is([data-vscode-theme-name="Monokai"], [data-vscode-theme-id*="monokai" i]) {
+  --pv-heading: #A6E22E; --pv-bold: #66D9EF; --pv-em: #FD971F;
+  --pv-link: #AE81FF; --pv-code: #FD971F; --pv-code-bg: #3E3D32;
+  --pv-rule: #75715E; --pv-quote-bg: #3E3D32;
+  --pv-mark: #E6DB74; --pv-mark-fg: #272822; --pv-check: #A6E22E;
+}
+body.vscode-dark:is([data-vscode-theme-name="Abyss"], [data-vscode-theme-id*="abyss" i]) {
+  --pv-heading: #FFEEBB; --pv-bold: #DDBB88; --pv-em: #F280D0;
+  --pv-link: #6688CC; --pv-code: #22AA44; --pv-code-bg: #082050;
+  --pv-rule: #384887; --pv-quote-bg: #082050;
+  --pv-mark: #DDBB88; --pv-mark-fg: #000C18; --pv-check: #22AA44;
+}
+body.vscode-dark :is(h1, h2, h3, h4, h5, h6) { color: var(--pv-heading); }
+body.vscode-dark :is(h1, h2) { border-bottom-color: var(--pv-rule); }
+body.vscode-dark strong { color: var(--pv-bold); }
+body.vscode-dark em { color: var(--pv-em); }
+body.vscode-dark strong em, body.vscode-dark em strong { color: var(--pv-bold); }
+body.vscode-dark a, body.vscode-dark a:hover { color: var(--pv-link); }
+body.vscode-dark :not(pre) > code {
+  color: var(--pv-code); background: var(--pv-code-bg);
+  padding: 1px 5px; border-radius: 4px;
+}
+body.vscode-dark mark { color: var(--pv-mark-fg); background: var(--pv-mark); padding: 0 3px; border-radius: 3px; }
+body.vscode-dark blockquote { border-left-color: var(--pv-rule); background: var(--pv-quote-bg); }
+body.vscode-dark hr { border-top-color: var(--pv-rule); }
+body.vscode-dark input[type="checkbox"] { accent-color: var(--pv-check); }

@@ -1,0 +1,32 @@
+.DS_Store
+.tokensave/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# `quint verify` writes its Apalache run output into the *current* directory,
+# not next to the model — so running it from the repo root leaves this behind.
+_apalache-out/
+
+# Quint is pinned in package.json and package-lock.json; the tree it installs is not committed.
+node_modules/
+
+# Scratch. The old grill-research skill (removed 2026-10-12) wrote its workdocs to
+# tmp/<CLAUDE_CODE_SESSION_ID>/research-workdoc.md, and some may still be here.
+tmp/
+
+# EnterWorktree checks out worktrees here — local dev copies of branches already
+# pushed via `git push`, not remote content. Unignored, a stray `git add -A` from
+# the primary checkout would sweep a whole nested working tree (its own .git,
+# node_modules, everything) into a commit.
+.claude/worktrees/
+
+# Python bytecode from the skills' checkers and fixture materialisers. These
+# are build artifacts of whichever interpreter last ran a test suite, and the
+# filename carries that version (`.cpython-314.pyc`), so they churn per machine.
+__pycache__/
+
+# Claude Code writes a plugin's editor types here when it loads it. They match the local build.
+.claude/skills/*/.claude-plugin/types/
+
+# The project map of this machine (scripts/project-map.py). Its start is projects-mapping.md.template.
+projects-mapping.md

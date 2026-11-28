@@ -1,0 +1,1 @@
+- Written 2026-11-01: R416. The user asked for a hover on `### the user` questions in the level `question-context`. R2 had dropped a hover card because a big one covered the next link. The user picked a small card to the side, with the click popup of R2 kept.

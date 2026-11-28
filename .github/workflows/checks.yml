@@ -1,0 +1,39 @@
+# The checks of the public repo, on each PR and each push. The rulesets need both jobs to pass
+# before a merge into nightly or main. The deny list comes from the secret DENY_LIST, so no term
+# is in a file or a log. A PR from a fork gets no secret, so its scans job fails.
+name: checks
+on:
+  pull_request:
+  push:
+permissions:
+  contents: read
+jobs:
+  scans:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | sudo tar -xz -C /usr/local/bin gitleaks
+      - name: Scans
+        env:
+          DENY_LIST_TEXT: ${{ secrets.DENY_LIST }}
+        run: |
+          [ -n "$DENY_LIST_TEXT" ] || { echo "no deny list secret: a PR from a fork cannot pass this check"; exit 1; }
+          printf '%s\n' "$DENY_LIST_TEXT" > "$RUNNER_TEMP/deny.txt"
+          export DENY_LIST="$RUNNER_TEMP/deny.txt"
+          bash scripts/public-release/scan.sh plant
+          bash scripts/public-release/scan.sh pii .
+          bash scripts/public-release/scan.sh names .
+      - name: Changelog and e2e tests
+        # R56: a PR into nightly that lacks its changelog or its e2e tests fails this job. A promote
+        # into main brings many changelogs, each checked when it went into nightly.
+        if: github.event_name == 'pull_request' && github.base_ref == 'nightly'
+        run: bash scripts/public-release/scan.sh release . "origin/${{ github.base_ref }}"
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests
+        run: ALLOW_NO_GITLEAKS=1 bash scripts/public-release/tests/test-scan.sh

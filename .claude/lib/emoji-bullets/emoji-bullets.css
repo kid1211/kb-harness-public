@@ -1,0 +1,16 @@
+/* emoji-bullets: the status legend of a requirement or a Requirements heading, on hover.
+ * The legend is a hidden span that emoji-bullets.js writes, 30% bigger than the text. The row of
+ * the item's own status has a white background, the whole row. */
+[data-legend] { position: relative; }
+.eb-legend {
+  display: none; position: absolute; left: 0; top: 100%; z-index: 10; width: max-content; max-width: 40em;
+  padding: 6px 10px; border-radius: 4px; pointer-events: none; user-select: none;
+  font: normal calc(var(--markdown-font-size, 14px) * 1.3) / 1.5 var(--markdown-font-family, sans-serif);
+  color: var(--vscode-editorHoverWidget-foreground, #ddd);
+  background: var(--vscode-editorHoverWidget-background, #252526);
+  border: 1px solid var(--vscode-editorHoverWidget-border, #454545);
+}
+[data-legend]:hover > .eb-legend { display: block; }
+.eb-row, .eb-first { display: block; }
+.eb-first { margin-bottom: 4px; }
+.eb-on { margin: 0 -6px; padding: 0 6px; border-radius: 3px; color: var(--pal-navy, #001F3F); background: var(--pal-white, #FFFFFF); }

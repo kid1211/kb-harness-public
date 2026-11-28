@@ -1,0 +1,25 @@
+# Project map
+
+This file maps each folder you work in to its project and its KB. It stays on this machine: git ignores `projects-mapping.md`.
+
+- Copy this file to `projects-mapping.md` in the harness main checkout, then add one row per folder.
+- `scripts/project-map.py` reads the first table. The status line, the folders pane, the project start and the `/add-dir` hook read it through that script.
+- After each git commit, the `project-map-check` hook names a folder that is on no row.
+- Give each folder that has a `.claude/` folder at its top its own row. Claude Code loads skills only from `.claude/skills/` at the top of an added folder, so a git repo is not what counts.
+- The Role is one of `frontend`, `backend`, `mobile`, `infra`, `lib` (code: these show under the status line), `KB` or `tooling`. The status line shows a role off the list on a red tag.
+
+| Project | Folder | Role | KB | Note |
+|---|---|---|---|---|
+| harness | ~/second-brain/harness | tooling | personal | the skills, hooks and settings that each KB shares |
+
+## Domain prompts
+
+A pick of a domain in `/domains` runs `/add-dir` for its folders, then puts the text under its `### <domain>` heading in the prompt box. Keep the Context first and the "What I want to run" line last: the cursor lands at the end of the text, so you type the task there. A domain with no heading gets no prompt.
+
+### example-domain
+
+Context:
+- <folder 1> is ...
+- <folder 2> is ...
+
+What I want to run (blank means context only: confirm and wait):

@@ -1,0 +1,16 @@
+/* palette.css - the dark-theme colours the user picked on 2026-10-10, from "Deep Indigo Ocean"
+ * and "Earth & Bamboo". Each page maps these to its own roles. The table is in README.md. */
+:root {
+  --pal-tan: #D2B48C;
+  --pal-linen: #FAF0E6;
+  --pal-light-blue: #A8D8EA;
+  --pal-slate-blue: #4A6A88;
+  --pal-white: #FFFFFF;
+  --pal-firebrick: #B22222;
+  /* Fills only: too dark for text on a dark background. */
+  --pal-navy: #001F3F;
+  --pal-midnight: #191970;
+  --pal-charcoal: #363636;
+  --pal-olive: #6B7158;
+  --pal-fern: #4F7942; /* added 2026-10-23: the end of a flow that went well */
+}

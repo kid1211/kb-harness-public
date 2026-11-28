@@ -1,0 +1,5 @@
+- **Read the modes once at session start:** the design that R1 to R3 were built with. Replaced: R8 makes the mode one per machine, so a press in another session must show at the next draw. Each event now reads the file.
+- **Watch the file for a change:** read only when the file changes on disk. Not chosen: it needs a timer or a watch, and a read of one small file at each event is less code.
+- **Draw the tree of `next(e)` above the own row:** as `plan-rounds` does. Not chosen: then the `writing-mode` row is not on top when it is the outer mod, against R9.
+- **Keep the modes in an atom that each draw writes:** the buttons redraw when the atom changes. Not chosen: a draw that writes the atom starts another draw, so the band can redraw without end. Each draw reads the file and writes nothing.
+- **The pane out of the model, opened by `⚙ config` and never closed by it:** replaced by the states Toggle pane and Close pane, for R12 and R10 of the `mod` level. The user wants `⚙ config` to close the pane too, and one harness pane at a time.
