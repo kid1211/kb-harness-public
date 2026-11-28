@@ -173,6 +173,60 @@ if t commit_page_only; then setup; transcript 5
   else bad "commit_page_only: files=$files log=$(cat "$C/state/failures.log" 2>/dev/null)"; fi
 fi
 
+# spec-rounds recordedTest: a session with an automatic plan commit gets its rows and a Spec
+# section, and the page and spec-rounds.csv go in one commit.
+if t spec_rounds_commit; then setup; transcript 5
+  python3 -I - "$C/t.jsonl" <<'EOF'
+import json, sys, datetime
+path = sys.argv[1]
+now = datetime.datetime.now(datetime.timezone.utc)
+ts = lambda m: (now - datetime.timedelta(minutes=m)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+msg = '"[automatic after p-req] plans/demo: wants"'
+lines = [
+    {"type": "assistant", "uuid": "u-c1", "timestamp": ts(7), "message": {"id": "m-c", "content": [{"type": "tool_use", "id": "t-c", "name": "Bash", "input": {"command": "git commit -m " + msg}}]}},
+    {"type": "user", "uuid": "u-c2", "timestamp": ts(6), "message": {"content": [{"type": "tool_result", "tool_use_id": "t-c", "content": "ok"}]}},
+]
+open(path, "a").write("".join(json.dumps(l) + "\n" for l in lines))
+EOF
+  retro
+  files=$(git -C "$C/kb" show --name-only --format= HEAD^{/session-retro} 2>/dev/null | sort | tr '\n' ' ')
+  want="claude-research/session-retro/$(basename "$(page)") claude-research/session-retro/spec-rounds.csv "
+  if [ "$files" = "$want" ] && grep -q '^## Spec' "$(page)"; then ok "spec_rounds_commit"
+  else bad "spec_rounds_commit: files=$files log=$(cat "$C/state/failures.log" "$C/state/runs.log" 2>/dev/null)"; fi
+fi
+
+# spec-rounds failedTest: a failed record is logged, and the page still goes in alone.
+if t spec_rounds_fails; then setup; transcript 5
+  mkdir -p "$C/kb/claude-research/session-retro/spec-rounds.csv"  # a folder, so the write fails
+  printf '{"type": "assistant", "uuid": "u-c1", "timestamp": "%s", "message": {"id": "m", "content": [{"type": "tool_use", "id": "t-c", "name": "Bash", "input": {"command": "git commit -m \\"[automatic after p-req] plans/demo: w\\""}}]}}\n{"type": "user", "uuid": "u-c2", "timestamp": "%s", "message": {"content": [{"type": "tool_result", "tool_use_id": "t-c", "content": "ok"}]}}\n' \
+    "$(date -u -v-7M +%Y-%m-%dT%H:%M:%S.000Z)" "$(date -u -v-6M +%Y-%m-%dT%H:%M:%S.000Z)" >> "$C/t.jsonl"
+  retro
+  if grep -q "spec rounds" "$C/state/failures.log" 2>/dev/null && [ -n "$(page)" ] \
+     && git -C "$C/kb" log --format=%s | grep -q session-retro; then ok "spec_rounds_fails"
+  else bad "spec_rounds_fails: log=$(cat "$C/state/failures.log" 2>/dev/null)"; fi
+fi
+
+# spec-rounds skippedTest: a copy of the skill with no spec-rounds.py, such as an older release,
+# logs "skipped for now", writes no failure, and still commits the page.
+if t spec_rounds_missing_skips; then setup; transcript 5
+  old=$S; mkdir -p "$C/h"; cp -R "$skill/.." "$C/h/skills"; rm "$C/h/skills/session-retro/scripts/spec-rounds.py"
+  S="$C/h/skills/session-retro/scripts"
+  retro; S=$old
+  if grep -q "spec rounds: skipped for now" "$C/state/runs.log" 2>/dev/null && [ ! -s "$C/state/failures.log" ] \
+     && [ -n "$(page)" ] && ! grep -q '^## Spec' "$(page)"; then ok "spec_rounds_missing_skips"
+  else bad "spec_rounds_missing_skips: log=$(cat "$C/state/runs.log" "$C/state/failures.log" 2>/dev/null)"; fi
+fi
+
+# spec-rounds skippedTest: with no round, a change another writer made to spec-rounds.csv
+# stays out of the retro commit.
+if t spec_rounds_skip_keeps_csv; then setup; transcript 5
+  mkdir -p "$C/kb/claude-research/session-retro"; echo "session" > "$C/kb/claude-research/session-retro/spec-rounds.csv"
+  retro
+  files=$(git -C "$C/kb" show --name-only --format= HEAD^{/session-retro} 2>/dev/null)
+  [ "$files" = "claude-research/session-retro/$(basename "$(page)")" ] && ok "spec_rounds_skip_keeps_csv" \
+    || bad "spec_rounds_skip_keeps_csv: files=$files"
+fi
+
 # commit: personal on a branch other than main is refused.
 if t not_main; then setup; transcript 5
   git -C "$C/kb" checkout -q -b side

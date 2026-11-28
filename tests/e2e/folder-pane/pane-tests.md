@@ -16,8 +16,10 @@
 
 ## Expected
 
-1. Step 1 prints `0 fail`, and a pass count of at least 8.
-2. Step 2 exits 0 and prints `READY`. It prints no error that names `folder-pane`.
+1. Step 1 prints `0 fail`, and `19 pass` or more.
+2. Each test that starts with `promptTest:` is on a `(pass)` line of step 1. A pick puts the text of the domain in the box.
+3. The test `pane: /worktrees toggle opens it` is on a `(pass)` line too. Only a made worktree opens in VS Code.
+4. Step 2 exits 0 and prints `READY`. It prints no error that names `folder-pane`.
 
 ## Cleanup
 

@@ -93,5 +93,17 @@ else
 fi
 
 dest=$(python3 -I "$here/findings-page.py" move "$page" 2>&1) || fail "${dest:-the move into the KB failed}"
-why=$(bash "$here/commit-page.sh" "$dest" 2>&1) || fail "commit: $why"
+# The spec rounds of the session. A failure is logged, and the page still goes in.
+# spec-rounds.csv goes in the commit only when this run wrote rows to it. A skill with no
+# spec-rounds.py, such as an older release, skips them.
+also=()
+if [[ ! -f $here/spec-rounds.py ]]; then
+  why="skipped for now"
+elif ! why=$(python3 -I "$here/spec-rounds.py" record "$sid" "$transcript" "$dest" 2>&1); then
+  echo "$(date '+%F %T') session ${sid:0:8}: spec rounds: ${why##*$'\n'}" >> "$state/failures.log"
+elif [[ $why == *" rounds" ]]; then
+  also=("$(dirname "$dest")/spec-rounds.csv")
+fi
+log "spec rounds: ${why##*$'\n'}"
+why=$(bash "$here/commit-page.sh" "$dest" ${also[@]+"${also[@]}"} 2>&1) || fail "commit: $why"
 log "done: $dest"

@@ -61,7 +61,7 @@ The user's answer to the map question is not seen by any check.
 
 ## Risks
 
-- A skills folder deeper than the git root does not load. Map that repo on its own row.
+- A skills folder deeper than the top of an added folder does not load. Map the folder that has the `.claude/` at its top on its own row.
 - In a session, a `/add-dir` of a folder still gets no siblings. Only the start does.
 
 ## Appendix
