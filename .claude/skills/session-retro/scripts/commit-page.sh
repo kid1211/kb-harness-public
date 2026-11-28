@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# commit-page.sh <page>: commit one findings page alone in the KB, on main, and push it.
+# commit-page.sh <page> [<file>...]: commit one findings page, and each file the run wrote with it,
+# alone in the KB, on main, and push it.
 # Takes the same lock as kb-commit-nudge.sh, so the two never commit in the repo at once.
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
@@ -18,9 +19,11 @@ for _ in $(seq 1 60); do mkdir "$lock" 2>/dev/null && { got=1; break; }; sleep 1
 trap 'rmdir "$lock"' EXIT
 
 rel=${page#"$kb"/}
-git -C "$kb" add -- "$rel" || exit 1
-if ! git -C "$kb" diff --cached --quiet -- "$rel"; then
-  git -C "$kb" commit -q -m "session-retro: findings of session $(basename "$rel" .staging.md)" -- "$rel" || exit 1
+# Each other file the run wrote, such as spec-rounds.csv, goes in the same commit.
+paths=("$rel" "${@:2}")
+git -C "$kb" add -- "${paths[@]}" || exit 1
+if ! git -C "$kb" diff --cached --quiet -- "${paths[@]}"; then
+  git -C "$kb" commit -q -m "session-retro: findings of session $(basename "$rel" .staging.md)" -- "${paths[@]}" || exit 1
 fi
 # A failed rebase is undone, so the KB is never left half rebased.
 if ! git -C "$kb" pull -q --rebase --autostash; then
