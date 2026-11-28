@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Engine, Register } from 'claude-code'
 
 import type { Ctx, Data, Domain } from '../types'
-import { PANE as WT_PANE, refresh as refreshWorktrees, register as worktrees } from './worktrees'
+import { folderSet, PANE as WT_PANE, refresh as refreshWorktrees, register as worktrees, selectedOf } from './worktrees'
 
 // The design: plans/global/components/multi-folder/components/folder-pane/.
 // The status line and the add-dir hook write the added folders to `dirs`, and the
@@ -96,14 +96,7 @@ export function instructionFolders(rows: [string, string][]): [string, string][]
   return [...by].map(([dir, whos]) => [dir, whos.join(', ')])
 }
 
-const folderSet = (d: Domain) => d.folders.map(f => f.folder)
-const within = (a: string[], b: string[]) => a.every(f => b.includes(f))
-
-// F12: each domain whose folders are all added, less one whose folders all sit in another such domain.
-export function selectedOf(domains: Domain[], dirs: string[]): string[] {
-  const full = domains.filter(d => within(folderSet(d), dirs))
-  return full.filter(d => !full.some(o => o !== d && within(folderSet(d), folderSet(o)))).map(d => d.name)
-}
+export { selectedOf }
 
 // F13, F14: the text of a click, for the chat.
 export function pickText(d: Domain, dirs: string[], all: Domain[] = [d]): string {
