@@ -9,7 +9,8 @@
   project-map.py list                each project with its folders
   project-map.py roles <project>     each folder of the project, a tab, and its Role cell
   project-map.py role <path>         the Role cell of the longest row that holds the path, or nothing
-  project-map.py domains             each domain with its folders and roles, as JSON: the domains pane
+  project-map.py domains             each domain with its folders and roles, as JSON: the domains pane,
+                                     and its prompt: the text under its ### heading in ## Domain prompts
   project-map.py selected <path>...  the largest domains whose folders are all in the paths, joined by ", "
 
 The map is the first Markdown table with a Project and a Folder column in
@@ -67,6 +68,20 @@ def read_rows(path):
     return rows if cols else None
 
 
+def read_prompts(path):
+    """{domain: text} from the ### headings under the ## Domain prompts heading."""
+    prompts, name, inside = {}, None, False
+    for line in open(path, encoding="utf-8").read().splitlines():
+        if line.startswith("## "):
+            inside, name = line[3:].strip() == "Domain prompts", None
+        elif inside and line.startswith("### "):
+            name = line[4:].strip()
+            prompts[name] = []
+        elif name:
+            prompts[name].append(line)
+    return {n: "\n".join(t).strip() for n, t in prompts.items() if "\n".join(t).strip()}
+
+
 def holds(folder, path):
     return path == folder or path.startswith(folder + "/")
 
@@ -102,8 +117,9 @@ def main(argv):
         return 2
     kind = argv[1]
     if kind == "domains":
-        print(json.dumps([{"name": p, "folders": [{"folder": f, "role": ROLES[(q, f)]} for q, f in rows if q == p]}
-                          for p in projects(rows)]))
+        prompts = read_prompts(path)
+        print(json.dumps([{"name": p, "folders": [{"folder": f, "role": ROLES[(q, f)]} for q, f in rows if q == p],
+                           **({"prompt": prompts[p]} if p in prompts else {})} for p in projects(rows)]))
         return 0
     if kind == "selected":
         added = {os.path.realpath(p) for p in argv[2:]}

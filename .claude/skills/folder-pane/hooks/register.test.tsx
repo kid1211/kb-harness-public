@@ -21,7 +21,7 @@ const DOMAINS = [
   { name: 'mf-web', folders: [{ folder: '/t/web', role: 'frontend' }] },
   { name: 'mf-api', folders: [{ folder: '/t/api', role: 'backend' }] },
   { name: 'mf-both', folders: [{ folder: '/t/web', role: 'frontend' }, { folder: '/t/api', role: 'backend' }] },
-  { name: 'trade', folders: [{ folder: '/p/trade', role: 'KB' }] },
+  { name: 'trade', folders: [{ folder: '/p/trade', role: 'KB' }], prompt: 'What I want to run (blank means context only: confirm and wait):' },
 ]
 const CTX: Record<string, unknown> = {
   '/h': { folder: '/h', project: 'harness', role: 'tooling', docs: [] },
@@ -37,6 +37,7 @@ function engine(on: any, files: Record<string, string>) {
   const logs: string[] = []
   const added: string[] = []
   const copied: string[] = []
+  const filled: string[] = []
   on('ui.render', { component: 'AbovePrompt' }, ($: any, e: any) => {
     const { Box } = $.ui.resolve(e)
     return <Box key="engine" />
@@ -51,6 +52,7 @@ function engine(on: any, files: Record<string, string>) {
   on('session.id', () => ({ value: 'sess-1' }))
   on('command.register', () => ({ value: { command: 'domains' } }))
   on('command.run', { command: 'add-dir' }, (_: unknown, e: { args: string }) => { added.push(e.args); return {} })
+  on('prompt.fill', (_: unknown, e: { text: string }) => { filled.push(e.text); return { isFilled: true } })
   on('ui.copy', (_: unknown, e: { text: string }) => { copied.push(e.text); return { value: { isCopied: true } } })
   on('ui.log', (_: unknown, e: { text: string }) => { logs.push(e.text); return { value: undefined } })
   on('ui.panes', () => ({ value: [...open].map(id => ({ id, title: 'Domains' })) }))
@@ -63,7 +65,7 @@ function engine(on: any, files: Record<string, string>) {
     const dirs = e.argv.slice(e.argv.indexOf('--json') + 1)
     return { value: { exitCode: 0, stdout: JSON.stringify(dirs.map(d => CTX[d])), stderr: '' } }
   })
-  return { open, runs, logs, added, copied }
+  return { open, runs, logs, added, copied, filled }
 }
 
 const files = (dirs: string[]) => ({
@@ -149,10 +151,26 @@ test('pickTest: no domain active, a click on mf-both runs /add-dir for each of i
   await pane.unmount()
 })
 
+test('promptTest: a click on trade runs its /add-dir, then puts its prompt in the prompt box', async ($, on) => {
+  const { pane, added, filled } = await opened($, on, [])
+  await pane.press({ key: 'pick-trade' })
+  expect(added).toEqual(['/p/trade'])
+  expect(filled).toEqual(['What I want to run (blank means context only: confirm and wait):'])
+  await pane.unmount()
+})
+
+test('promptTest: a domain with no prompt fills nothing', async ($, on) => {
+  const { pane, filled } = await opened($, on, [])
+  await pane.press({ key: 'pick-mf-web' })
+  expect(filled).toEqual([])
+  await pane.unmount()
+})
+
 test('switchTest: mf-web active, a click on trade writes only the new-session command', async ($, on) => {
-  const { pane, logs, added, copied } = await opened($, on, ['/t/web'])
+  const { pane, logs, added, copied, filled } = await opened($, on, ['/t/web'])
   await pane.press({ key: 'pick-trade' })
   expect(added).toEqual([])
+  expect(filled).toEqual([])
   expect(logs).toEqual(['bash ~/second-brain/harness/scripts/project-start.sh trade', 'Copied: paste it.'])
   expect(copied).toEqual(['bash ~/second-brain/harness/scripts/project-start.sh trade'])
   await pane.unmount()
